@@ -8,23 +8,103 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="vocab.css">
-    <script src="vocab.js"></script>
+    <style>
+        /* CSS tạo bố cục chia đôi Trái - Phải và thiết kế bảng vẽ tay tương thích sketch-container */
+        .main-layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .left-panel {
+            flex: 1;
+        }
+        .right-panel {
+            flex: 1.2;
+            background: #ffffff;
+            border: 2px solid #2d3748;
+            padding: 20px;
+            border-radius: 15px 225px 15px 255px/225px 15px 255px 15px; /* Nét vẽ tay giống phong cách của bạn */
+            box-shadow: 4px 4px 0px #2d3748;
+            max-height: 450px;
+            overflow-y: auto; /* Cuộn nếu danh sách quá dài */
+        }
+        .panel-title {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 24px;
+            color: #2d3748;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px dashed #718096;
+            padding-bottom: 5px;
+        }
+        .vocab-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 19px;
+        }
+        .vocab-table th, .vocab-table td {
+            border: 1px solid #2d3748;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .vocab-table th {
+            background-color: #f7fafc;
+        }
+        .vocab-table tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+        .text-center {
+            text-align: center !important;
+        }
+        .empty-text {
+            color: #a0aec0;
+            font-style: italic;
+            text-align: center;
+            padding: 20px 0;
+        }
+    </style>
 </head>
 <body>
 
     <div class="sketch-container">
         <button class="btn-back" id="backBtn">←</button>
 
-        <h1 class="title">Ôn tập từ mới của bạn mỗi ngày !</h1>
-        
-        <div class="button-group">
-            <button class="btn" id="reviewBtn">ôn tập ngay</button>
-            <button class="btn" id="importBtn">thêm từ mới</button>
+        <div class="main-layout">
+            <div class="left-panel">
+                <h1 class="title">Ôn tập từ mới của bạn mỗi ngày !</h1>
+                <div class="button-group" style="flex-direction: column; gap: 15px;">
+                    <button class="btn" id="reviewBtn" style="width: 100%;">ôn tập ngay</button>
+                    <button class="btn" id="importBtn" style="width: 100%;">thêm từ mới</button>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <h2 class="panel-title">Từ cần ôn tập hôm nay</h2>
+                <div id="table-container">
+                    <table class="vocab-table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 10%">STT</th>
+                                <th style="width: 45%">Từ vựng (EN)</th>
+                                <th style="width: 45%">Ý nghĩa (VI)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vocab-list-body">
+                            <tr>
+                                <td colspan="3" class="empty-text">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="vocab.js"></script>
-</body>
-</html>
 </body>
 </html>

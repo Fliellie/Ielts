@@ -3,28 +3,102 @@ document.addEventListener('DOMContentLoaded', () => {
     const reviewBtn = document.getElementById('reviewBtn');
     const importBtn = document.getElementById('importBtn');
     const backButton = document.getElementById('backBtn');
+    const vocabListBody = document.getElementById('vocab-list-body');
 
-    // 2. LOGIC NÚT "ÔN TẬP NGAY"
+    // Cấu hình IndexedDB đồng bộ với vocab-room.js
+    const DB_NAME = 'VocabDB';
+    const DB_VERSION = 2;
+    const STORE_NAME = 'words';
+    let db;
+
+    // 2. LOGIC ĐIỀU HƯỚNG CÁC NÚT BẤM
     if (reviewBtn) {
         reviewBtn.addEventListener('click', () => {
-            // Chuyển hướng sang trang phòng ôn tập từ mới (Ngang hàng ngoài gốc)
             window.location.href = 'vocab-room.html';
         });
     }
 
-    // 3. LOGIC NÚT "THÊM TỪ MỚI"
     if (importBtn) {
         importBtn.addEventListener('click', () => {
-            // Chuyển hướng sang trang nhập liệu (Ngang hàng ngoài gốc)
             window.location.href = 'import.html';
         });
     }
 
-    // 4. LOGIC NÚT "QUAY LẠI" (Đã sửa đường dẫn phẳng chuẩn GitHub Pages)
     if (backButton) {
         backButton.addEventListener('click', function() {
-            // Vì file đã ra ngoài thư mục gốc, gọi trực tiếp không cần dùng "../"
             window.location.href = '../index.html';
         });
     }
+
+    // 3. LOGIC KẾT NỐI INDEXEDDB & ĐỔ DỮ LIỆU LÊN BẢNG
+    function getTodayString() {
+        const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000); 
+        return localDate.toISOString().split('T')[0]; 
+    }
+
+    function initAndFetchTodayWords() {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = () => {
+            console.error("Lỗi mở database:", request.error);
+            vocabListBody.innerHTML = `<tr><td colspan="3" class="empty-text" style="color:red">Không thể tải dữ liệu!</td></tr>`;
+        };
+
+        request.onsuccess = () => {
+            db = request.result;
+            displayTodayWords();
+        };
+
+        // Tạo store nếu DB trống (Đề phòng người dùng vào trang này đầu tiên)
+        request.onupgradeneeded = (event) => {
+            const database = event.target.result;
+            if (!database.objectStoreNames.contains(STORE_NAME)) {
+                const store = database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                store.createIndex('english', 'english', { unique: true });
+                store.createIndex('nextReviewDate', 'nextReviewDate', { unique: false });
+            }
+        };
+    }
+
+    function displayTodayWords() {
+        const todayStr = getTodayString();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const allWords = request.result;
+            
+            // Lọc các từ có ngày ôn tập bằng hoặc nhỏ hơn ngày hôm nay (giống thuật toán xử lý hàng đợi dồn toa)
+            const todayWords = allWords.filter(word => word.nextReviewDate <= todayStr);
+
+            // Xóa dòng thông báo "Đang tải..."
+            vocabListBody.innerHTML = "";
+
+            if (todayWords.length === 0) {
+                vocabListBody.innerHTML = `<tr><td colspan="3" class="empty-text">Thảnh thơi quá! Hôm nay không có từ nào cần ôn tập.</td></tr>`;
+                return;
+            }
+
+            // Đổ dữ liệu, đánh số thứ tự (STT) và render lên bảng
+            todayWords.forEach((word, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td class="text-center">${index + 1}</td>
+                    <td><strong>${word.english}</strong></td>
+                    <td>${word.vietnamese}</td>
+                `;
+                
+                vocabListBody.appendChild(row);
+            });
+        };
+
+        request.onerror = () => {
+            console.error("Lỗi lấy dữ liệu từ store:", request.error);
+        };
+    }
+
+    // Kích hoạt tiến trình lấy dữ liệu khi tải trang xong
+    initAndFetchTodayWords();
 });
