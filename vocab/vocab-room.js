@@ -131,7 +131,18 @@ function nextQuestion() {
 
     switchState('review');
 }
-
+/**
+ * Hàm chuẩn hóa chuỗi: Chuyển về viết thường, xóa sạch dấu cách, 
+ * dấu ngoặc và tất cả các ký tự đặc biệt (chỉ giữ lại chữ cái và chữ số).
+ */
+function cleanString(str) {
+    if (!str) return "";
+    return str
+        .toLowerCase()                             // Chuyển thành viết thường
+        .replace(/[\s\(\)\[\]\{\}\-\,\.\?\!\:\;\_\"\']/g, "") // Xóa dấu cách, các loại ngoặc và dấu câu thông dụng
+        .normalize("NCD")                          // Giữ nguyên dấu tiếng Việt chuẩn hóa (nếu có)
+        .trim();
+}
 // Hàm tìm ngày trống tiếp theo tuân thủ quy tắc: Không quá 20 từ/ngày
 function findNextAvailableDate(startInterval) {
     return new Promise((resolve) => {
@@ -197,18 +208,24 @@ async function updateWordInDB(word, isCorrectFirstTime) {
 }
 
 // 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng
+// 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng (Đã sửa logic chuẩn hóa)
 function checkAnswer() {
     const inputField = document.getElementById('answer-input');
-    const userAnswer = inputField.value.trim().toLowerCase();
+    
+    // Sử dụng hàm cleanString để lọc sạch đáp án người dùng nhập
+    const userAnswer = cleanString(inputField.value);
     
     let activeMode = currentMode;
     if (isTestingReverseSide) {
         activeMode = (currentMode === 'vi' ? 'en' : 'vi');
     }
 
-    const correctAnswer = (activeMode === 'vi' ? currentWord.vietnamese : currentWord.english).trim().toLowerCase();
+    // Sử dụng hàm cleanString để lọc sạch đáp án gốc trong CSDL
+    const rawCorrectAnswer = activeMode === 'vi' ? currentWord.vietnamese : currentWord.english;
+    const correctAnswer = cleanString(rawCorrectAnswer);
 
-    if (userAnswer === correctAnswer) {
+    // Tiến hành so sánh chuỗi trần sau khi đã gọt sạch ký tự thừa
+    if (userAnswer === correctAnswer && correctAnswer !== "") {
         // TRƯỜNG HỢP: ĐÁP ÁN ĐÚNG
         if (isRetryingWrongWord) {
             // Đang bắt gõ lại cho đúng -> Gõ đúng xong chuyển qua kiểm tra chiều ngược lại liền
@@ -236,7 +253,7 @@ function checkAnswer() {
                 if (!currentWord.isPassedFirstRound) {
                     // Mới chỉ đúng chiều thứ nhất -> Chuyển sang bắt kiểm tra nốt chiều thứ 2 luôn
                     currentWord.isPassedFirstRound = true;
-                    isTestingReverseSide = true;
+                    isTestingReviewSide = true;
                     nextQuestion();
                 } else {
                     // Đã đúng nốt cả chiều thứ 2 -> Hoàn hảo! Cho qua từ này
@@ -252,7 +269,7 @@ function checkAnswer() {
         currentWord.isFailedInSession = true; // Đánh dấu từ này đã từng sai
         isTestingReverseSide = false; // Thiết lập lại, hủy trạng thái đảo chiều nếu có
         
-        // Thiết lập màn hình báo sai
+        // Thiết lập màn hình báo sai (Hiển thị chuỗi gốc đầy đủ để người dùng biết họ sai ở đâu)
         if (activeMode === 'vi') {
             document.getElementById('wrong-eng').textContent = currentWord.english;
             document.getElementById('correct-viet').textContent = currentWord.vietnamese;
