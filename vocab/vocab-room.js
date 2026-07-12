@@ -210,6 +210,7 @@ async function updateWordInDB(word, isCorrectFirstTime) {
 
 // 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng
 // 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng (Đã sửa logic chuẩn hóa)
+// 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng
 function checkAnswer() {
     const inputField = document.getElementById('answer-input');
     
@@ -217,11 +218,12 @@ function checkAnswer() {
     const userAnswer = cleanString(inputField.value);
     
     let activeMode = currentMode;
+    // Nếu đang trong trạng thái đảo chiều, activeMode phải được lật ngược lại
     if (isTestingReverseSide) {
         activeMode = (currentMode === 'vi' ? 'en' : 'vi');
     }
 
-    // Sử dụng hàm cleanString để lọc sạch đáp án gốc trong CSDL
+    // Xác định đúng đáp án mục tiêu dựa theo activeMode thực tế tại thời điểm bấm kiểm tra
     const rawCorrectAnswer = activeMode === 'vi' ? currentWord.vietnamese : currentWord.english;
     const correctAnswer = cleanString(rawCorrectAnswer);
 
@@ -229,21 +231,22 @@ function checkAnswer() {
     if (userAnswer === correctAnswer && correctAnswer !== "") {
         // TRƯỜNG HỢP: ĐÁP ÁN ĐÚNG
         if (isRetryingWrongWord) {
-            // Đang bắt gõ lại cho đúng -> Gõ đúng xong chuyển qua kiểm tra chiều ngược lại liền
+            // Đã gõ lại từ sai thành công -> Reset chế độ sửa sai, bật chế độ đảo chiều kiểm tra vế còn lại liền
             isRetryingWrongWord = false;
             isTestingReverseSide = true;
-            nextQuestion();
+            nextQuestion(); // Gọi hiển thị giao diện đảo chiều tương ứng
         } 
         else if (isTestingReverseSide) {
-            // Hoàn thành kiểm tra nốt vế ngược lại của từ bị lỗi
+            // Đã hoàn thành nốt vế đảo chiều của một từ từng bị lỗi trước đó
             isTestingReverseSide = false;
-            // Đẩy từ lỗi này xuống cuối hàng đợi để cuối buổi kiểm tra lại
+            
+            // Lấy từ lỗi này ra khỏi đầu hàng đợi và đẩy xuống cuối hàng để cuối buổi kiểm tra lại tổng thể
             const failedWord = reviewQueue.shift();
             reviewQueue.push(failedWord);
             switchState('correct');
         } 
         else {
-            // Đúng ngay từ trạng thái bình thường ban đầu
+            // Đúng ngay từ trạng thái bình thường ban đầu (Không qua sửa sai)
             if (currentWord.isFailedInSession) {
                 // Từ này từng sai trước đó, nay đã lết về cuối hàng đợi và gõ đúng lần nữa -> Tốt, đẩy sang ngày khác
                 const passedWord = reviewQueue.shift();
@@ -254,7 +257,7 @@ function checkAnswer() {
                 if (!currentWord.isPassedFirstRound) {
                     // Mới chỉ đúng chiều thứ nhất -> Chuyển sang bắt kiểm tra nốt chiều thứ 2 luôn
                     currentWord.isPassedFirstRound = true;
-                    isTestingReviewSide = true;
+                    isTestingReverseSide = true; // ĐÃ FIX: Đồng bộ đúng tên biến isTestingReverseSide
                     nextQuestion();
                 } else {
                     // Đã đúng nốt cả chiều thứ 2 -> Hoàn hảo! Cho qua từ này
@@ -267,10 +270,10 @@ function checkAnswer() {
         }
     } else {
         // TRƯỜNG HỢP: ĐÁP ÁN SAI
-        currentWord.isFailedInSession = true; // Đánh dấu từ này đã từng sai
-        isTestingReverseSide = false; // Thiết lập lại, hủy trạng thái đảo chiều nếu có
+        currentWord.isFailedInSession = true; // Đánh dấu từ này đã từng sai trong phiên học
+        isTestingReverseSide = false; // Thiết lập lại, hủy trạng thái đảo chiều nếu có để đưa về sửa từ gốc
         
-        // Thiết lập màn hình báo sai (Hiển thị chuỗi gốc đầy đủ để người dùng biết họ sai ở đâu)
+        // Thiết lập màn hình báo sai (Hiển thị chuỗi gốc đầy đủ dựa trên activeMode thực tế để người học nhận diện)
         if (activeMode === 'vi') {
             document.getElementById('wrong-eng').textContent = currentWord.english;
             document.getElementById('correct-viet').textContent = currentWord.vietnamese;
@@ -279,7 +282,7 @@ function checkAnswer() {
             document.getElementById('correct-viet').textContent = currentWord.english;
         }
         
-        isRetryingWrongWord = true; // Kích hoạt cờ bắt buộc gõ lại từ đầu
+        isRetryingWrongWord = true; // Kích hoạt cờ bắt buộc gõ lại từ đầu cho đúng vế hiện tại
         switchState('wrong');
     }
 }
