@@ -131,6 +131,7 @@ function nextQuestion() {
 
     switchState('review');
 }
+
 /**
  * Hàm chuẩn hóa chuỗi: Chuyển về viết thường, xóa sạch dấu cách, 
  * dấu ngoặc và tất cả các ký tự đặc biệt (chỉ giữ lại chữ cái và chữ số).
@@ -140,7 +141,7 @@ function cleanString(str) {
     return str
         .toLowerCase()                             // Chuyển thành viết thường
         .replace(/[\s\(\)\[\]\{\}\-\,\.\?\!\:\;\_\"\']/g, "") // Xóa dấu cách, các loại ngoặc và dấu câu thông dụng
-        .normalize("NCD")                          // Giữ nguyên dấu tiếng Việt chuẩn hóa (nếu có)
+        .normalize("NFD")                          // ĐÃ SỬA: Chuyển từ "NCD" thành "NFD" mới đúng chuẩn
         .trim();
 }
 // Hàm tìm ngày trống tiếp theo tuân thủ quy tắc: Không quá 20 từ/ngày
