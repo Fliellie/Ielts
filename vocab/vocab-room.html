@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng Ôn Tập Từ Mới</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="vocab.css">
+    <style>
+        .mode-toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px; /* Tạo khoảng cách vừa vặn phía dưới ô nhập */
+            width: 100%;
+        }
+        .btn-mode {
+            background: #ffffff;
+            border: 2px solid #2d3748;
+            padding: 8px 20px; /* Tăng nhẹ padding cho nút cân đối hơn */
+            font-family: 'Patrick Hand', cursive;
+            font-size: 20px;   /* Cho chữ to rõ ràng một chút */
+            cursor: pointer;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; /* Giữ nguyên nét vẽ tay */
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 0px #2d3748;
+            color: #2d3748;
+        }
+        .btn-mode:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px #2d3748;
+            background: #f7fafc;
+        }
+        .btn-mode:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #2d3748;
+        }
+        .btn-mode.active-en {
+            background: #62C4DA;
+            color: white;
+            border-color: #4db3c9;
+            box-shadow: 3px 3px 0px #2d3748;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sketch-container room-container">
+        <button class="btn-back" id="backBtn">←</button>
+        
+        <div class="mode-toggle-container">
+            <button class="btn-mode" id="modeToggleBtn">Chế độ: Đọc Nghĩa</button>
+        </div>
+
+        <div id="review-state" class="quiz-state">
+            <div class="date-header">từ mới ngày <span id="word-date">.../.../....</span></div>
+            <div class="input-label" id="mode-instruction" style="font-size: 20px; margin-bottom: 5px; color: #718096;">Nhìn từ tiếng Anh dịch nghĩa:</div>
+            <div class="word-display" id="word-english">ABCXYZ</div>
+            
+            <div class="input-section">
+                <label class="input-label" id="input-placeholder-label">điền định nghĩa của bạn</label>
+                <input type="text" id="answer-input" class="sketch-input" autocomplete="off" autofocus>
+            </div>
+        </div>
+
+        <div id="correct-state" class="quiz-state hidden">
+            <div class="status-msg success-text">Đúng rồi, bấm enter để tiếp tục</div>
+        </div>
+
+        <div id="wrong-state" class="quiz-state hidden">
+            <div class="status-msg danger-text">Sai rồi!</div>
+            <div class="comparison-box">
+                <div class="word-display" id="wrong-eng">ABCXYZ</div>
+                <div class="arrow-divider">→</div>
+                <div class="word-display danger-text" id="correct-viet">dsakjn</div>
+            </div>
+            <div class="footer-msg">ấn enter để làm lại</div>
+        </div>
+
+        <div id="empty-state" class="quiz-state hidden">
+            <div class="status-msg danger-text">hết từ mới rồi, quay lại vào ngày mai nhé!</div>
+        </div>
+    </div>
+
+    <script src="vocab-room.js"></script>
+</body>
+</html>

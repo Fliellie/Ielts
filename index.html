@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Minimalist Workspace</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+<body>
+
+    <div class="menu-center-container" id="main-menu-panel">
+        <div class="menu-center-header">
+            <span class="logo-text">ielts</span>
+            <span class="badge">v1.0</span>
+            <p class="menu-subtitle">Rút ngắn con đường dẫn tới thành công của bạn.</p>
+        </div>
+        
+        <div class="mode-selection-grid">
+            <button class="mode-btn" data-tab="reading">
+                <span class="mode-icon">📖</span>
+                <span class="mode-title">Reading Lab</span>
+            </button>
+            <button class="mode-btn" data-tab="writing">
+                <span class="mode-icon">✍️</span>
+                <span class="mode-title">Writing Space</span>
+            </button>
+            <button class="mode-btn" data-tab="vocab">
+                <span class="mode-icon">🧠</span>
+                <span class="mode-title">Từ vựng của bạn</span>
+            </button>
+            <button class="mode-btn" data-tab="grammar">
+                <span class="mode-icon">📝</span>
+                <span class="mode-title">Ngữ pháp tĩnh</span>
+            </button>
+        </div>
+        <div class="menu-center-footer"> by fliellie</div>
+    </div>
+
+
+    <main class="main-content full-width hidden" id="content-workspace">
+        
+        <button class="btn btn-secondary btn-back-menu" id="btn-back-to-menu">🏠 Quay lại Menu chính</button>
+
+        <section id="reading" class="tab-panel">
+            <div class="panel-header">
+                <h2>📖 Reading Lab & Dịch Tại Chỗ</h2>
+                <div class="timer-box">
+                    <span>⏱️ Giới hạn:</span>
+                    <input type="number" id="reading-timer-input" value="60" min="1">
+                    <span>phút</span>
+                    <button id="btn-start-reading-timer" class="btn btn-sm">Bắt đầu</button>
+                    <span id="reading-clock" class="clock-display hidden">60:00</span>
+                </div>
+            </div>
+
+            <div class="upload-zone" id="drop-zone">
+                <p>Kéo thả file <strong>.txt</strong> hoặc <strong>.pdf</strong> vào đây hoặc</p>
+                <input type="file" id="file-uploader" accept=".txt,.pdf" hidden>
+                <button class="btn btn-primary" onclick="document.getElementById('file-uploader').click()">Chọn File Từ Máy</button>
+            </div>
+
+            <div class="reading-workspace hidden" id="reading-area">
+                <div class="reading-text-container" id="text-render-area"></div>
+                <div class="reading-sidebar">
+                    <div class="sticky-box">
+                        <h3>💡 Mẹo Học Nhanh</h3>
+                        <p class="instruction">Bôi đen từ hoặc cụm từ để dịch nhanh tại chỗ.</p>
+                        
+                        <div id="translation-popup" class="translation-box hidden">
+                            <div class="box-header">
+                                <strong>Kết quả:</strong>
+                                <span class="badge-count" id="word-count-badge">0 từ</span>
+                            </div>
+                            <p id="translated-text">Chọn từ để xem...</p>
+                            <button id="btn-save-vocab" class="btn btn-sm btn-success hidden">⚡ Lưu vào kho từ</button>
+                        </div>
+
+                        <div class="action-prompts">
+                            <h3>🤖 Trích xuất Prompt AI</h3>
+                            <button class="btn btn-secondary btn-block" id="btn-copy-reading-prompt">
+                                📋 Copy Prompt tạo 5 câu trắc nghiệm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="writing" class="tab-panel">
+            <div class="panel-header">
+                <h2>✍️ Writing Space & Diễn Giả Lab</h2>
+                <div class="timer-box">
+                    <span id="writing-clock" class="clock-display">40:00</span>
+                    <button id="btn-start-writing" class="btn btn-sm btn-primary">Bắt đầu tính giờ</button>
+                </div>
+            </div>
+
+            <div class="writing-grid">
+                <div class="topics-list-box">
+                    <h3>📌 Danh sách 20 Đề Bài</h3>
+                    <div class="topics-wrapper" id="topics-injector"></div>
+                </div>
+
+                <div class="editor-box">
+                    <div class="editor-header">
+                        <h4 id="current-selected-topic-title">Vui lòng chọn một đề bài bên trái để bắt đầu...</h4>
+                        <div class="word-counter">Số từ: <strong id="word-count-display">0</strong></div>
+                    </div>
+                    <textarea id="writing-textarea" placeholder="Bắt đầu gõ bài viết của bạn tại đây..." disabled></textarea>
+                    <div class="editor-footer">
+                        <button class="btn btn-danger" id="btn-copy-writing-prompt" disabled>
+                            🚀 Copy Bài Làm & Prompt Chấm Điểm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="vocab" class="tab-panel">
+            <div class="panel-header">
+                <h2>🧠 Kho Từ Vựng Active Recall</h2>
+                <button class="btn btn-sm btn-danger" id="btn-clear-vocab">🗑️ Xóa sạch kho từ</button>
+            </div>
+            <div class="vocab-container">
+                <div class="vocab-stats">Bạn đang tích lũy <strong id="total-vocab-count">0</strong> từ vựng.</div>
+                <div class="flashcard-grid" id="flashcard-area"></div>
+            </div>
+        </section>
+
+        <section id="grammar" class="tab-panel">
+            <div class="panel-header">
+                <h2>📝 Master Ngữ Pháp</h2>
+            </div>
+            <div class="grammar-layout">
+                <div class="grammar-menu" id="grammar-nav"></div>
+                <div class="grammar-view-panel" id="grammar-content-view">
+                    <div class="empty-state">Chọn một chủ điểm ngữ pháp ở bên trái để học.</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

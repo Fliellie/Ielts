@@ -1,0 +1,298 @@
+
+/* ==========================================================================
+   1. ĐỊNH DẠNG HỆ THỐNG NÚT BẤM (BUTTONS) - THEO MÀU BẠN CUNG CẤP
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Kích thước nhỏ */
+.btn-sm { 
+    padding: 6px 14px; 
+    font-size: 12px; 
+    border-radius: 8px; 
+}
+
+/* Các nhóm màu sắc */
+.btn-primary { 
+    background-color: #62C4DA; 
+    color: white; 
+}
+
+.btn-secondary { 
+    background-color: #FFDE96; 
+    color: #2D3748; 
+}
+
+.btn-success { 
+    background-color: #FA855A; 
+    color: white; 
+}
+
+.btn-danger { 
+    background-color: #C93638; 
+    color: white; 
+}
+
+
+/* ==========================================================================
+   2. CẤU TRÚC LAYOUT CHIA ĐÔI 50/50 (WORKSPACE)
+   ========================================================================== */
+html, body {
+    overflow-x: hidden;     
+    overflow-y: auto;       
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #FFDE96; /* Màu nền nhẹ toàn trang */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+#writing-workspace-area {
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.writing-body-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Chia đôi cửa sổ hoàn hảo 50% - 50% */
+    gap: 30px;                      /* Khoảng cách giữa 2 cột */
+    align-items: start;             
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ==========================================================================
+   3. CỘT TRÁI: VÙNG CHỨA ẢNH ĐỀ BÀI (TRẦN TRONG SUỐT)
+   ========================================================================== */
+.image-upload-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: transparent;        
+    border: none;                   
+    padding: 0;
+    margin: 0;
+}
+
+/* Khung placeholder khi chưa có ảnh */
+#image-upload-placeholder {
+    cursor: pointer;
+    color: #718096;
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    padding: 60px 20px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+#image-preview-container {
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+#writing-image-preview {
+    display: block;
+    width: 100%;                    /* Bung hết cỡ 50% chiều rộng màn hình */
+    max-height: 78vh;               /* Khống chế chiều cao vừa tầm mắt */
+    object-fit: contain;            
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); 
+    background-color: #ffffff;
+}
+
+/* Nút xóa ảnh (Dấu x đỏ góc ảnh) */
+#btn-remove-image {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #C93638; /* Đồng bộ màu với btn-danger */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease;
+}
+
+#btn-remove-image:hover {
+    transform: scale(1.1);
+}
+
+
+/* ==========================================================================
+   4. CỘT PHẢI: HỘP TRẮNG ĐỘC LẬP CHỨA NỘI DUNG LÀM BÀI
+   ========================================================================== */
+.workspace-right-panel {
+    width: 100%;
+    background: #FFFFFF;                  /* Hộp nền trắng bo góc tách biệt */
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;                            /* Khoảng cách xếp dọc của các phần tử con */
+}
+
+/* 4.1. Vùng tiêu đề đề bài */
+.topic-title-area h4 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #2D3748;
+}
+
+/* 4.2. Vùng công cụ đếm từ và đếm giờ */
+.meta-tools-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.writing-timer-box {
+    background: #fff5f5;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #fed7d7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#writing-clock {
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 16px;
+    color: #C93638; /* Đồng bộ với màu btn-danger */
+}
+
+.word-counter-tag {
+    font-size: 14px;
+    color: #4a5568;
+    background: #f7fafc;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+/* 4.3. Ô gõ nội dung bài viết luận */
+#writing-main-input {
+    width: 100%;
+    min-height: 400px;             
+    padding: 18px;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2D3748;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    outline: none;
+    resize: vertical;              
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+#writing-main-input:focus {
+    border-color: #62C4DA; /* Đổi màu viền sang xanh primary khi gõ */
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(98, 196, 218, 0.12);
+}
+
+/* 4.4. Hàng nút Footer cuối hộp */
+.workspace-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 16px;
+}
+
+/* Tiện ích ẩn hiện */
+.hidden {
+    display: none !important;
+}
+
+
+/* ==========================================================================
+   5. ĐÁP ỨNG GIAO DIỆN MÀN HÌNH NHỎ (RESPONSIVE)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .writing-body-layout {
+        grid-template-columns: 1fr; /* Co về 1 cột dọc trên máy tính bảng/điện thoại */
+        gap: 20px;
+    }
+    #image-upload-placeholder {
+        padding: 30px 15px;
+    }
+}
+
+
+#tieude{
+    padding-right: 50px;
+}
+/* --- CHẾ ĐỘ FOCUS MODE (TOÀN MÀN HÌNH NƠI GÕ CHỮ) --- */
+.writing-body-layout.focus-active {
+    grid-template-columns: 1fr; /* Chuyển thành 1 cột full màn hình */
+}
+
+.writing-body-layout.focus-active .image-upload-wrapper {
+    display: none !important;   /* Ẩn hoàn toàn vùng ảnh bên trái */
+}
+
+.writing-body-layout.focus-active #writing-main-input {
+    min-height: 550px;          /* Tăng thêm chiều cao ô nhập liệu khi ở chế độ tập trung */
+}
+
+/* Đổi style cho nút Focus khi đang bật để người dùng dễ nhận biết */
+#btn-focus-mode.active {
+    background-color: #62C4DA !important;
+    color: white !important;
+}

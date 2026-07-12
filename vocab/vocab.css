@@ -1,0 +1,292 @@
+/* Thiết lập cơ bản cho toàn bộ trang */
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #FFDE96; /* Màu vàng kem giấy vẽ từ bảng màu */
+    font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Khung viền đỏ bao quanh giống nét vẽ */
+.sketch-container {
+    border: 3px double #C93638; /* Màu đỏ đậm từ bảng màu */
+    border-radius: 8px;
+    padding: 40px 20px;
+    width: 90%;
+    max-width: 650px;
+    text-align: center;
+    background-color: #ffffff;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+}
+
+/* Tiêu đề chữ màu đỏ */
+.title {
+    color: #C93638;
+    font-size: 2.2rem;
+    font-weight: normal;
+    margin-bottom: 50px;
+    letter-spacing: 1px;
+}
+
+/* Khu vực chứa các nút bấm */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+}
+
+/* Tạo hiệu ứng nút bấm có họa tiết gạch chéo (như nét bút chì màu) */
+.btn {
+    font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1.8rem;
+    color: #000000;
+    background-color: #62C4DA; /* Màu xanh từ bảng màu */
+    
+    /* Tạo hiệu ứng sọc chéo giả lập nét vẽ chì màu trong hình */
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.4) 4px,
+        rgba(255, 255, 255, 0.4) 8px
+    );
+    
+    border: 2px solid #C93638; /* Viền nút màu đỏ */
+    border-radius: 16px;
+    padding: 12px 0;
+    width: 100%;
+    max-width: 320px;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    outline: none;
+}
+
+/* Hiệu ứng khi di chuột và bấm vào nút */
+.btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+/* --- Các đoạn mã cũ giữ nguyên, thêm thuộc tính position vào container để định vị nút Back --- */
+.sketch-container {
+    position: relative; /* Thêm thuộc tính này để nút back căn theo khung */
+    border: 3px double #C93638;
+    border-radius: 8px;
+    padding: 50px 20px 40px 20px; /* Tăng padding top một chút để không đè vào chữ */
+    width: 90%;
+    max-width: 650px;
+    text-align: center;
+    background-color: #ffffff;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Style riêng cho nút Back vẽ tay màu đỏ cam --- */
+.btn-back {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #FA855A; /* Sử dụng màu đỏ cam từ bảng màu của bạn */
+    border: 2px solid #C93638;
+    border-radius: 50%; /* Nút hình tròn */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    line-height: 1;
+    padding-bottom: 4px; /* Nhích nhẹ mũi tên lên cho cân đối font */
+    transition: transform 0.1s ease;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.btn-back:hover {
+    transform: scale(1.1);
+    background-color: #C93638; /* Đổi màu đậm hơn khi hover */
+}
+
+.btn-back:active {
+    transform: scale(0.95);
+}
+/* --- CSS BỔ SUNG CHO VOCAB-ROOM --- */
+.room-container {
+    background-color: #FFDE96; /* Đổi nền ruột thành màu vàng giấy note theo thiết kế */
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.quiz-state {
+    width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Header ngày tháng nằm góc trên bên phải */
+.date-header {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 1.3rem;
+    color: #C93638;
+}
+
+/* Chữ hiển thị từ tiếng Anh gốc */
+.word-display {
+    font-size: 3.5rem;
+    color: #C93638;
+    margin: 20px 0;
+    letter-spacing: 2px;
+}
+
+/* Khung nhập liệu định nghĩa */
+.input-section {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-label {
+    color: #62C4DA; /* Màu xanh dương từ palette */
+    font-size: 1.6rem;
+}
+
+.sketch-input {
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    font-size: 1.8rem;
+    width: 80%;
+    max-width: 450px;
+    padding: 10px 15px;
+    border: 2px solid #C93638;
+    border-radius: 14px;
+    background-color: #62C4DA; /* Background xanh pastel của input */
+    color: #000000;
+    outline: none;
+    text-align: center;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Các màu chữ thông báo */
+.success-text {
+    color: #4CAF50 !important; /* Màu xanh lá cây thông báo đúng */
+}
+
+.danger-text {
+    color: #C93638 !important;
+}
+
+.status-msg {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+/* Giao diện so sánh khi trả lời sai */
+.comparison-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin: 30px 0;
+    position: relative;
+}
+
+/* Gạch sọc đỏ đứng chia đôi màn hình khi sai */
+.comparison-box::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    bottom: -10px;
+    left: 50%;
+    width: 2px;
+    background-color: #C93638;
+    transform: translateX(-50%);
+}
+
+.arrow-divider {
+    font-size: 2.5rem;
+    color: #C93638;
+    z-index: 1;
+    background: #FFDE96;
+    padding: 0 5px;
+}
+
+.footer-msg {
+    font-size: 1.4rem;
+    color: #4CAF50;
+    margin-top: 20px;
+}
+/* --- CSS BỔ SUNG CHO TRANG IMPORT --- */
+.import-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.import-label {
+    font-size: 2.2rem;
+    color: #C93638; /* Màu đỏ chữ viết tay */
+    margin-bottom: 10px;
+}
+
+/* Tùy chỉnh riêng cho ô input trang import rộng rãi hơn */
+.import-form .sketch-input {
+    width: 85%;
+    max-width: 500px;
+    margin-bottom: 15px;
+}
+
+/* Hàng chứa 2 nút chức năng phía dưới */
+.import-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 85%;
+    max-width: 500px;
+    margin-top: 30px;
+    gap: 20px;
+}
+
+/* Style cho nút hành động nhỏ phía dưới */
+.btn-action {
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    font-size: 1.4rem;
+    color: #C93638; /* Chữ màu đỏ */
+    background-color: #62C4DA; /* Nền xanh lam */
+    border: 2px solid #C93638;
+    border-radius: 12px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+}
+
+.btn-action:active {
+    transform: scale(0.95);
+}
+
+/* Nút thêm nằm bên phải */
+#addBtn {
+    padding-left: 40px;
+    padding-right: 40px;
+}

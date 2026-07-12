@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Từ Mới</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="vocab.css">
+</head>
+<body>
+
+    <div class="sketch-container room-container">
+        <button class="btn-back" id="backBtn">←</button>
+
+        <div class="import-form">
+            <label class="import-label">từ mới của bạn :</label>
+            <input type="text" id="english-input" class="sketch-input" placeholder="Ví dụ: Hello hoặc copy đoạn văn vào đây..." autocomplete="off">
+
+            <label class="import-label" style="margin-top: 20px;">định nghĩa:</label>
+            <input type="text" id="vietnamese-input" class="sketch-input" placeholder="Ví dụ: Xin chào (Bỏ trống nếu dán danh sách nhiều từ)" autocomplete="off">
+
+            <div class="import-actions">
+                <button class="btn-action" id="bulkImportBtn">dán định dạng của bạn vào đây</button>
+                <button class="btn-action" id="addBtn">thêm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="import.js"></script>
+</body>
+</html>

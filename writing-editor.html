@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Làm bài luận - IELTS Minimalist</title>
+    <link rel="stylesheet" href="writing-editor.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <main class="main-content">
+        <div class="writing-header-nav" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <button class="btn btn-secondary" onclick="window.location.href='writing.html'">⬅️ Trở về danh sách đề</button>
+            <h2 id="tieude">📝 Writing</h2>
+        </div>
+
+        <section id="writing-workspace-area">
+            <div class="writing-body-layout">
+                
+                <div class="image-upload-wrapper">
+                    <input type="file" id="writing-image-input" accept="image/*" style="display: none;">
+                    
+                    <div id="image-upload-placeholder" onclick="document.getElementById('writing-image-input').click()">
+                        📸 <strong>Kéo thả ảnh đề bài, Click chọn file</strong> hoặc ấn <strong>Ctrl + V</strong> để dán ảnh đề từ bộ nhớ tạm
+                    </div>
+                    
+                    <div id="image-preview-container" class="hidden">
+                        <img id="writing-image-preview" src="" alt="Đề bài đính kèm">
+                        <button type="button" id="btn-remove-image">×</button>
+                    </div>
+                </div>
+
+                <div class="workspace-right-panel">
+                    
+                    <div class="topic-title-area">
+                        <h4 id="active-topic-title">Đang tải đề bài...</h4>
+                    </div>
+
+                    <div class="meta-tools-area">
+                        <div class="writing-timer-box">
+                            <span>⏱️</span>
+                            <span id="writing-clock">40:00</span>
+                            <button id="btn-toggle-timer" class="btn btn-sm">Bắt đầu</button>
+                        </div>
+                        <div class="word-counter-tag">Số từ: <strong id="writing-word-count">0</strong></div>
+                        <button id="btn-focus-mode" class="btn btn-secondary btn-sm">🔍 Focus On Writing</button>
+                    </div>
+
+                    <textarea id="writing-main-input" placeholder="Bắt đầu gõ bài luận của bạn tại đây (Tối thiểu 250 từ để đạt tiêu chuẩn)..."></textarea>
+                    
+                    <div class="workspace-card-footer">
+                        <button class="btn btn-secondary" id="btn-cancel-writing">❌ Hủy bài làm</button>
+                        <button class="btn btn-success" id="btn-export-ai-prompt">🚀 Copy Bài Làm & Prompt Chấm Điểm</button>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+
+    <script src="writing-editor.js"></script>
+</body>
+</html>

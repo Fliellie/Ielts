@@ -1,0 +1,115 @@
+{
+  "task1": [
+    {
+      "id": "T1-01",
+      "original_id": 1,
+      "prompt": " The four bar charts compare the percentage of male and female students who achieved high grades (A and B) in five subjects at Parston School and the national average. Summarize the information by selecting and reporting the main features and make comparisons where relevant.",
+      "image_url": "resources/1.png"
+    },
+    {
+      "id": "T1-02",
+      "original_id": 2,
+      "prompt": "The charts shows the sales of five different kinds of jam from 2009 to 2014. Summarize the information by selecting and reporting the main features and make comparisons where relevant.",
+      "image_url": "resources/2.png"
+    },
+    {
+      "id": "T1-03",
+      "original_id": 3,
+      "prompt": "The diagram below shows the structure of a home smokery and how it is used.Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+      "image_url": "resources/3.png"
+    },
+    {
+      "id": "T1-04",
+      "original_id": 5,
+      "prompt": " The chart below shows the percentage of the population in the UK who consumed the recommended daily amount of fruit and vegetables in 2002, 2006 and 2010.Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+      "image_url": "resources/4.png"
+    },
+    {
+      "id": "T1-05",
+      "original_id": 12,
+      "prompt": "The charts below show the proportion of holidaymakers using four different types of accommodation in three different years. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+      "image_url": "resources/5.png"
+    },
+    {
+      "id": "T1-06",
+      "original_id": 16,
+      "prompt": "The tables show how many international students studied in Canada and the United States by country of origin in 2002 and 2003.",
+      "image_url": "resources/6.png"
+    },
+    {
+      "id": "T1-07",
+      "original_id": 18,
+      "prompt": "read the image",
+      "image_url": "resources/7.png"
+    },
+    {
+      "id": "T1-08",
+      "original_id": 19,
+      "prompt": "The chart below gives information about the high-speed internet connection of households in five countries in 2001 and 2002. Summarize the information by selecting and reporting the main features, and make comparisons where relevant. ",
+      "image_url": "resources/8.png"
+    },
+    {
+      "id": "T1-09",
+      "original_id": 20,
+      "prompt": "The table below gives information about the average annual distance travelled by adults and the types of travel in 1977 and 2007. Summarize the information by selecting and reporting the main features and make comparisons where relevant.",
+      "image_url": "resources/9.png"
+    }
+  ],
+  "task2": [
+    {
+      "id": "T2-01",
+      "original_id": 4,
+      "prompt": "In many countries, more and more people are competing for fewer jobs. What are the causes of this situation, and what solutions can you suggest?"
+    },
+    {
+      "id": "T2-02",
+      "original_id": 6,
+      "prompt": "A large amount of advertisement nowadays is targeted at children. What are the effects of this, and should it be banned?"
+    },
+    {
+      "id": "T2-03",
+      "original_id": 7,
+      "prompt": "Globalization has positive and negative impacts on local cultures. Discuss both views and give your opinion."
+    },
+    {
+      "id": "T2-04",
+      "original_id": 8,
+      "prompt": "International tourism has become a huge industry. Some believe it causes tension rather than understanding between cultures. Discuss both views."
+    },
+    {
+      "id": "T2-05",
+      "original_id": 9,
+      "prompt": "Some people think that prisons should be places to punish criminals, while others think they should be for rehabilitation. Discuss both views."
+    },
+    {
+      "id": "T2-06",
+      "original_id": 10,
+      "prompt": "As cities expand, urban living issues increase. Should governments encourage businesses to move to rural areas? Discuss."
+    },
+    {
+      "id": "T2-07",
+      "original_id": 11,
+      "prompt": "In some societies, the number of elderly people is growing rapidly. Does this trend have more positive or negative effects?"
+    },
+    {
+      "id": "T2-08",
+      "original_id": 13,
+      "prompt": "Many young people today leave school with a negative attitude towards learning. What are the causes and solutions?"
+    },
+    {
+      "id": "T2-09",
+      "original_id": 14,
+      "prompt": "Some people believe that using animals for laboratory testing is necessary for medical progress. Others disagree. Discuss."
+    },
+    {
+      "id": "T2-10",
+      "original_id": 15,
+      "prompt": "Economic progress is one way to measure a country's success. What other factors are important and should be considered?"
+    },
+    {
+      "id": "T2-11",
+      "original_id": 17,
+      "prompt": "We are living in a 'throw-away' society where people buy things they do not need. What are the causes and consequences?"
+    }
+  ]
+}
