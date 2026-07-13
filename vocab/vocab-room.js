@@ -209,7 +209,6 @@ async function updateWordInDB(word, isCorrectFirstTime) {
 }
 
 // 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng
-// 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng (Đã sửa logic chuẩn hóa)
 // 6. Xử lý sự kiện kiểm tra đáp án dựa trên Mode đang áp dụng
 function checkAnswer() {
     const inputField = document.getElementById('answer-input');
@@ -229,51 +228,48 @@ function checkAnswer() {
 
     // Tiến hành so sánh chuỗi trần sau khi đã gọt sạch ký tự thừa
     if (userAnswer === correctAnswer && correctAnswer !== "") {
+        // ==========================================
         // TRƯỜNG HỢP: ĐÁP ÁN ĐÚNG
+        // ==========================================
         if (isRetryingWrongWord) {
-            // Đã gõ lại từ sai thành công -> Reset chế độ sửa sai, bật chế độ đảo chiều kiểm tra vế còn lại liền
+            // ĐÃ SỬA: Đã gõ lại từ sai thành công -> Reset trạng thái sửa sai & tắt đảo chiều
             isRetryingWrongWord = false;
-            isTestingReverseSide = true;
-            nextQuestion(); // Gọi hiển thị giao diện đảo chiều tương ứng
-        } 
-        else if (isTestingReverseSide) {
-            // Đã hoàn thành nốt vế đảo chiều của một từ từng bị lỗi trước đó
-            isTestingReverseSide = false;
+            isTestingReverseSide = false; 
             
-            // Lấy từ lỗi này ra khỏi đầu hàng đợi và đẩy xuống cuối hàng để cuối buổi kiểm tra lại tổng thể
+            // Lấy từ lỗi này ra khỏi đầu hàng đợi và đẩy xuống cuối hàng để cuối buổi kiểm tra lại
             const failedWord = reviewQueue.shift();
             reviewQueue.push(failedWord);
+            
+            switchState('correct');
+        } 
+        else if (isTestingReverseSide) {
+            // Đúng nốt cả chiều thứ 2 một cách hoàn hảo (Từ chưa từng sai trong phiên)
+            isTestingReverseSide = false;
+            const perfectWord = reviewQueue.shift();
+            updateWordInDB(perfectWord, true); // Thưởng hệ số xa (3 ngày hoặc x2)
             switchState('correct');
         } 
         else {
-            // Đúng ngay từ trạng thái bình thường ban đầu (Không qua sửa sai)
+            // Đúng vế đầu tiên ở trạng thái bình thường ban đầu
             if (currentWord.isFailedInSession) {
-                // Từ này từng sai trước đó, nay đã lết về cuối hàng đợi và gõ đúng lần nữa -> Tốt, đẩy sang ngày khác
+                // Từ này từng sai trước đó, nay đã lết từ cuối hàng đợi lên và gõ đúng -> Cho qua và lưu DB (Hệ số sai ngày mai)
                 const passedWord = reviewQueue.shift();
-                updateWordInDB(passedWord, false); // Cập nhật sang ngày hôm khác (Hệ số sai)
+                updateWordInDB(passedWord, false); 
                 switchState('correct');
             } else {
-                // Đúng hoàn hảo ngay lần đầu tiên trong ngày!
-                if (!currentWord.isPassedFirstRound) {
-                    // Mới chỉ đúng chiều thứ nhất -> Chuyển sang bắt kiểm tra nốt chiều thứ 2 luôn
-                    currentWord.isPassedFirstRound = true;
-                    isTestingReverseSide = true; // ĐÃ FIX: Đồng bộ đúng tên biến isTestingReverseSide
-                    nextQuestion();
-                } else {
-                    // Đã đúng nốt cả chiều thứ 2 -> Hoàn hảo! Cho qua từ này
-                    isTestingReverseSide = false;
-                    const perfectWord = reviewQueue.shift();
-                    updateWordInDB(perfectWord, true); // Thưởng hệ số xa (3 ngày)
-                    switchState('correct');
-                }
+                // Đúng lần đầu tiên vế 1 -> Chuyển sang bắt kiểm tra nốt chiều ngược lại luôn
+                currentWord.isPassedFirstRound = true;
+                isTestingReverseSide = true; 
+                nextQuestion();
             }
         }
     } else {
+        // ==========================================
         // TRƯỜNG HỢP: ĐÁP ÁN SAI
+        // ==========================================
         currentWord.isFailedInSession = true; // Đánh dấu từ này đã từng sai trong phiên học
-        isTestingReverseSide = false; // Thiết lập lại, hủy trạng thái đảo chiều nếu có để đưa về sửa từ gốc
         
-        // Thiết lập màn hình báo sai (Hiển thị chuỗi gốc đầy đủ dựa trên activeMode thực tế để người học nhận diện)
+        // Thiết lập màn hình báo sai (Hiển thị chuỗi gốc đầy đủ dựa trên activeMode thực tế đang check)
         if (activeMode === 'vi') {
             document.getElementById('wrong-eng').textContent = currentWord.english;
             document.getElementById('correct-viet').textContent = currentWord.vietnamese;
