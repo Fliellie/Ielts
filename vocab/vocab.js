@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. LẤY CÁC PHẦN TỬ GIAO DIỆN
     const reviewBtn = document.getElementById('reviewBtn');
+    const quizBtn = document.getElementById('quizBtn'); // <-- Thêm dòng này
     const importBtn = document.getElementById('importBtn');
     const backButton = document.getElementById('backBtn');
     const vocabListBody = document.getElementById('vocab-list-body');
@@ -15,6 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reviewBtn) {
         reviewBtn.addEventListener('click', () => {
             window.location.href = 'vocab-room.html';
+        });
+    }
+
+    // Sự kiện chuyển hướng sang trang mode2.html khi click "Mode kiểm tra miệng"
+    if (quizBtn) {
+        quizBtn.addEventListener('click', () => {
+            window.location.href = 'mode2.html';
         });
     }
 
@@ -69,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         request.onsuccess = () => {
             const allWords = request.result;
             
-            // Lọc các từ có ngày ôn tập bằng hoặc nhỏ hơn ngày hôm nay (giống thuật toán xử lý hàng đợi dồn toa)
+            // Lọc các từ có ngày ôn tập bằng hoặc nhỏ hơn ngày hôm nay
             const todayWords = allWords.filter(word => word.nextReviewDate <= todayStr);
 
             // Xóa dòng thông báo "Đang tải..."

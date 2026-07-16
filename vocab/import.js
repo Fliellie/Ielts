@@ -153,7 +153,7 @@ document.getElementById('bulkImportBtn').addEventListener('click', () => {
 
 // Quay lại trang chủ 
 document.getElementById('backBtn').addEventListener('click', () => {
-    window.location.href = 'index.html';
+    window.location.href = 'vocab.html';
 });
 
 // Khởi chạy kết nối CSDL khi vào trang

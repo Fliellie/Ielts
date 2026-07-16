@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm Tra Miệng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="vocab.css">
+    <style>
+        /* Thiết lập background màu xanh mint nhạt đặc trưng của hình vẽ */
+        body {
+            background-color: #a8ebd0 !important; 
+        }
+
+        /* Container vẽ tay tùy chỉnh chiều rộng rộng rãi */
+        .sketch-container {
+            max-width: 900px !important;
+            background-color: #a8ebd0 !important;
+            border: 3px double #C93638;
+            box-shadow: none;
+            padding: 40px 30px;
+        }
+
+        /* Dòng hướng dẫn màu cam đất vẽ tay */
+        .instruction-text {
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 1.6rem;
+            color: #d97706;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            padding: 0 40px;
+        }
+
+        /* Layout chia 2 phần: Danh sách từ bên trái, Cụm nút chức năng bên phải */
+        .quiz-layout {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        /* Panel chứa danh sách từ kiểm tra miệng */
+        .word-panel {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Hàng hiển thị từng từ (STT + Khung chứa từ vựng) */
+        .word-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .word-index {
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 2.2rem;
+            color: #2d3748;
+            width: 30px;
+            text-align: right;
+        }
+
+        /* Khung chứa từ hiển thị màu hồng pastel như thiết kế */
+        .word-card {
+            flex: 1;
+            background-color: #ffb3b3; /* Màu hồng pastel */
+            border: 2px solid #C93638;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 1.6rem;
+            color: #000000;
+            text-align: center;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Cụm nút điều khiển bên phải */
+        .action-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        /* Override nút btn màu xanh dương nhạt trong ảnh */
+        .btn-quiz {
+            background-color: #90cdf4 !important; /* Xanh dương nhạt */
+            max-width: 100% !important;
+            font-size: 1.5rem;
+            padding: 10px 0;
+        }
+
+        .empty-notify {
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 1.6rem;
+            color: #718096;
+            text-align: center;
+            font-style: italic;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sketch-container">
+        <button class="btn-back" id="backBtn">←</button>
+
+        <p class="instruction-text" id="instruction">
+            Kiểm tra miệng: hãy trả lời miệng với mode tiếng anh và viết ra giấy tiếng anh với mode tiếng việt nhé
+        </p>
+
+        <div class="quiz-layout">
+            <div class="word-panel" id="wordListContainer">
+                <div class="empty-notify">Đang tải danh sách từ hôm nay...</div>
+            </div>
+
+            <div class="action-panel">
+                <button class="btn btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
+                <button class="btn btn-quiz" id="shuffleBtn">xáo trộn</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="mode2.js"></script>
+</body>
+</html>
