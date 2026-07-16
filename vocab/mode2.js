@@ -5,7 +5,8 @@ const STORE_NAME = 'words';
 
 let db;
 let todayWords = []; // Lưu trữ danh sách từ ôn tập của ngày hôm nay
-let currentDisplayMode = 'en'; // Chế độ mặc định: 'en' (hiển thị Tiếng Anh), 'vi' (hiển thị Tiếng Việt)
+let currentDisplayMode = 'en'; // Chế độ mặc định: 'en' (trả lời tiếng Anh), 'vi' (trả lời tiếng Việt)
+let showAnswers = false; // Trạng thái ẩn/hiện đáp án thực sự ở cột màu vàng
 
 // 1. Khởi tạo và kết nối IndexedDB
 function initDB() {
@@ -43,7 +44,6 @@ function loadTodayWords() {
 
         request.onsuccess = () => {
             const allWords = request.result;
-            // Lọc các từ có hạn ôn tập bằng hoặc nhỏ hơn ngày hôm nay
             todayWords = allWords.filter(word => word.nextReviewDate <= todayStr);
             resolve();
         };
@@ -52,7 +52,7 @@ function loadTodayWords() {
     });
 }
 
-// 3. Render danh sách từ ra các ô card hồng pastel
+// 3. Render danh sách từ ra các ô card song song Đề bài và Đáp án
 function renderWords() {
     const container = document.getElementById('wordListContainer');
     container.innerHTML = '';
@@ -62,17 +62,27 @@ function renderWords() {
         return;
     }
 
-    // Hiển thị tối đa 6-8 dòng (hoặc hiển thị toàn bộ dựa trên mảng dữ liệu)
     todayWords.forEach((word, index) => {
         const wordRow = document.createElement('div');
         wordRow.className = 'word-row';
 
-        // Xác định nội dung hiển thị dựa vào chế độ hiện tại
-        const displayContent = (currentDisplayMode === 'en') ? word.english : word.vietnamese;
+        let questionText = '';
+        let answerText = '';
+
+        if (currentDisplayMode === 'en') {
+            // Chế độ "trả lời tiếng anh": Cột trái hiển thị nghĩa Việt, Cột phải hiển thị từ Anh (ẩn/hiện)
+            questionText = word.vietnamese;
+            answerText = showAnswers ? word.english : '— — —';
+        } else {
+            // Chế độ "trả lời tiếng việt": Cột trái hiển thị từ Anh, Cột phải hiển thị nghĩa Việt (ẩn/hiện)
+            questionText = word.english;
+            answerText = showAnswers ? word.vietnamese : '— — —';
+        }
 
         wordRow.innerHTML = `
             <div class="word-index">${index + 1}</div>
-            <div class="word-card">${displayContent}</div>
+            <div class="word-card-question">${questionText}</div>
+            <div class="word-card-answer">${answerText}</div>
         `;
         container.appendChild(wordRow);
     });
@@ -84,12 +94,14 @@ function shuffleWords() {
         const j = Math.floor(Math.random() * (i + 1));
         [todayWords[i], todayWords[j]] = [todayWords[j], todayWords[i]];
     }
+    // Sau khi xáo trộn thì ẩn đáp án đi
+    showAnswers = false; 
     renderWords();
 }
 
 // --- LẮNG NGHE SỰ KIỆN GIAO DIỆN ---
 
-// Đổi qua lại giữa hiển thị Tiếng Anh và Tiếng Việt
+// Đổi chế độ học
 document.getElementById('toggleModeBtn').addEventListener('click', (e) => {
     if (currentDisplayMode === 'en') {
         currentDisplayMode = 'vi';
@@ -98,20 +110,30 @@ document.getElementById('toggleModeBtn').addEventListener('click', (e) => {
         currentDisplayMode = 'en';
         e.target.textContent = "trả lời tiếng anh";
     }
+    showAnswers = false; // Ẩn đáp án khi đổi chế độ
     renderWords();
 });
 
-// Xáo trộn ngẫu nhiên vị trí các từ vựng
+// Nút xáo trộn
 document.getElementById('shuffleBtn').addEventListener('click', () => {
     shuffleWords();
 });
 
-// Quay lại trang quản lý từ vựng vocab.html cùng thư mục
+// Nút quay lại
 document.getElementById('backBtn').addEventListener('click', () => {
     window.location.href = 'vocab.html';
 });
 
-// Khởi chạy ứng dụng khi DOM sẵn sàng
+// LẮNG NGHE PHÍM SPACE (DẤU CÁCH) ĐỂ LẬT MỞ ĐÁP ÁN
+document.addEventListener('keydown', (event) => {
+    if (event.code === 'Space') {
+        event.preventDefault(); // Tránh bị cuộn trang xuống khi nhấn Space
+        showAnswers = !showAnswers;
+        renderWords();
+    }
+});
+
+// Khởi chạy ứng dụng
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         await initDB();
