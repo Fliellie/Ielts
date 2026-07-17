@@ -7,6 +7,7 @@ let db;
 let todayWords = []; // Lưu trữ danh sách từ ôn tập của ngày hôm nay
 let currentDisplayMode = 'en'; // Chế độ mặc định: 'en' (trả lời tiếng Anh), 'vi' (trả lời tiếng Việt)
 let showAnswers = false; // Trạng thái ẩn/hiện đáp án thực sự ở cột màu vàng
+let masteredWordIds = new Set(); // Lưu trữ ID các từ đã tích chọn "thuộc" để ẩn đi
 
 // 1. Khởi tạo và kết nối IndexedDB
 function initDB() {
@@ -62,28 +63,56 @@ function renderWords() {
         return;
     }
 
+    // Cập nhật văn bản hiển thị trên nút Hiện/Ẩn đáp án dựa trên trạng thái hiện tại
+    const toggleAnswersBtn = document.getElementById('toggleAnswersBtn');
+    if (toggleAnswersBtn) {
+        toggleAnswersBtn.textContent = showAnswers ? "ẩn đáp án" : "hiện đáp án";
+    }
+
     todayWords.forEach((word, index) => {
         const wordRow = document.createElement('div');
-        wordRow.className = 'word-row';
+        const isMastered = masteredWordIds.has(word.id);
+        
+        // Nếu đã thuộc, thêm class 'hidden-word' để ẩn text theo CSS
+        wordRow.className = isMastered ? 'word-row hidden-word' : 'word-row';
 
         let questionText = '';
         let answerText = '';
 
-        if (currentDisplayMode === 'en') {
-            // Chế độ "trả lời tiếng anh": Cột trái hiển thị nghĩa Việt, Cột phải hiển thị từ Anh (ẩn/hiện)
-            questionText = word.vietnamese;
-            answerText = showAnswers ? word.english : '— — —';
+        if (isMastered) {
+            // Khi đã tích chọn thuộc: Trống thông tin hoặc hiển thị dấu gạch ngang giống phác thảo
+            questionText = ''; 
+            answerText = ''; 
         } else {
-            // Chế độ "trả lời tiếng việt": Cột trái hiển thị từ Anh, Cột phải hiển thị nghĩa Việt (ẩn/hiện)
-            questionText = word.english;
-            answerText = showAnswers ? word.vietnamese : '— — —';
+            if (currentDisplayMode === 'en') {
+                questionText = word.vietnamese;
+                answerText = showAnswers ? word.english : '— — —';
+            } else {
+                questionText = word.english;
+                answerText = showAnswers ? word.vietnamese : '— — —';
+            }
         }
 
         wordRow.innerHTML = `
             <div class="word-index">${index + 1}</div>
             <div class="word-card-question">${questionText}</div>
+            <div class="word-checkbox-container">
+                <input type="checkbox" class="word-checkbox" ${isMastered ? 'checked' : ''} data-id="${word.id}">
+            </div>
             <div class="word-card-answer">${answerText}</div>
         `;
+
+        // Lắng nghe sự kiện click trực tiếp vào checkbox
+        const checkbox = wordRow.querySelector('.word-checkbox');
+        checkbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                masteredWordIds.add(word.id);
+            } else {
+                masteredWordIds.delete(word.id);
+            }
+            renderWords(); // Re-render lại để cập nhật giao diện ẩn/hiện ngay lập tức
+        });
+
         container.appendChild(wordRow);
     });
 }
@@ -94,7 +123,7 @@ function shuffleWords() {
         const j = Math.floor(Math.random() * (i + 1));
         [todayWords[i], todayWords[j]] = [todayWords[j], todayWords[i]];
     }
-    // Sau khi xáo trộn thì ẩn đáp án đi
+    // Giữ nguyên trạng thái ẩn của các từ đã thuộc (không reset masteredWordIds)
     showAnswers = false; 
     renderWords();
 }
@@ -117,6 +146,18 @@ document.getElementById('toggleModeBtn').addEventListener('click', (e) => {
 // Nút xáo trộn
 document.getElementById('shuffleBtn').addEventListener('click', () => {
     shuffleWords();
+});
+
+// Nút Hiện / Ẩn đáp án
+document.getElementById('toggleAnswersBtn').addEventListener('click', () => {
+    showAnswers = !showAnswers;
+    renderWords();
+});
+
+// Nút Hiện tất cả (Bỏ ẩn toàn bộ các từ đã thuộc)
+document.getElementById('showAllBtn').addEventListener('click', () => {
+    masteredWordIds.clear(); // Xóa sạch danh sách ID từ đã thuộc
+    renderWords();
 });
 
 // Nút quay lại

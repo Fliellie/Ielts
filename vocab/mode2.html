@@ -43,7 +43,7 @@
             padding: 15px 20px;
             display: flex;
             justify-content: center;
-            gap: 40px;
+            gap: 15px; /* Giảm gap một chút để vừa 4 nút */
             z-index: 10;
             position: sticky;
             top: 0;
@@ -97,7 +97,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            max-width: 650px;
+            max-width: 750px; /* Tăng nhẹ để chứa thêm ô tích */
             margin: 0 auto;
         }
 
@@ -154,12 +154,76 @@
             transition: background-color 0.2s;
         }
 
+        /* Custom Ô Checkbox vuông vẽ tay ở giữa */
+        .word-checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .word-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 32px;
+            height: 32px;
+            border: 2px solid #C93638;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+            position: relative;
+            outline: none;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+        }
+
+        .word-checkbox:checked {
+            background-color: #fff;
+        }
+
+        /* Tạo hình dấu tích bằng font Patrick Hand hoặc CSS */
+        .word-checkbox:checked::after {
+            content: '✓';
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 1.8rem;
+            color: #d97706; /* Màu cam giống chữ hướng dẫn */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            font-weight: bold;
+        }
+
+        /* Trạng thái khi hàng bị ẩn đi (Chỉ hiện ô trống/dấu gạch ngang như hình phác thảo) */
+        .word-row.hidden-word .word-card-question {
+            background-color: #ffb3b3;
+            color: transparent;
+            text-shadow: none;
+        }
+        .word-row.hidden-word .word-card-question::after {
+            content: '— — —';
+            color: #000;
+        }
+        .word-row.hidden-word .word-card-answer {
+            background-color: #fef08a;
+            color: transparent;
+            text-shadow: none;
+        }
+
         /* Override nút btn sọc chéo màu xanh dương nhạt */
         .btn-quiz {
             background-color: #90cdf4 !important;
             max-width: 220px !important;
             font-size: 1.4rem;
-            padding: 8px 0;
+            padding: 8px 15px;
+            border: 2px solid #C93638;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-quiz:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
         }
 
         .empty-notify {
@@ -177,6 +241,16 @@
             top: 15px;
             left: 20px;
             z-index: 11;
+            background: #ffb3b3;
+            border: 2px solid #C93638;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -188,13 +262,15 @@
         <div class="sticky-header">
             <button class="btn btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
             <button class="btn btn-quiz" id="shuffleBtn">xáo trộn</button>
+            <button class="btn btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
+            <button class="btn btn-quiz" id="showAllBtn">hiện tất cả</button>
         </div>
 
         <div class="scrollable-content">
             <p class="instruction-text" id="instruction">
                 Kiểm tra miệng: hãy trả lời miệng với mode tiếng anh và viết ra giấy tiếng anh với mode tiếng việt nhé
             </p>
-            <p class="note-text">lưu ý : nhấn dấu cách để biết đáp án</p>
+            <p class="note-text">lưu ý : nhấn dấu cách để biết đáp án và nhấn tích vào cạnh từ bạn đã thuộc để ẩn từ đó đi</p>
 
             <div class="word-panel" id="wordListContainer">
                 <div class="empty-notify">Đang tải danh sách từ hôm nay...</div>
