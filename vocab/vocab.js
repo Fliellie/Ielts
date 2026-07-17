@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. LẤY CÁC PHẦN TỬ GIAO DIỆN
     const reviewBtn = document.getElementById('reviewBtn');
-    const quizBtn = document.getElementById('quizBtn'); // <-- Thêm dòng này
+    const quizBtn = document.getElementById('quizBtn'); 
     const importBtn = document.getElementById('importBtn');
+    const libraryBtn = document.getElementById('libraryBtn'); // <-- Lấy phần tử nút mới
     const backButton = document.getElementById('backBtn');
     const vocabListBody = document.getElementById('vocab-list-body');
 
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Sự kiện chuyển hướng sang trang mode2.html khi click "Mode kiểm tra miệng"
     if (quizBtn) {
         quizBtn.addEventListener('click', () => {
             window.location.href = 'mode2.html';
@@ -29,6 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (importBtn) {
         importBtn.addEventListener('click', () => {
             window.location.href = 'import.html';
+        });
+    }
+
+    // Gắn sự kiện chuyển hướng cho nút xem toàn bộ từ vựng
+    if (libraryBtn) {
+        libraryBtn.addEventListener('click', () => {
+            window.location.href = 'library.html'; // Tên trang danh sách từ vựng của bạn
         });
     }
 
@@ -57,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
             displayTodayWords();
         };
 
-        // Tạo store nếu DB trống (Đề phòng người dùng vào trang này đầu tiên)
         request.onupgradeneeded = (event) => {
             const database = event.target.result;
             if (!database.objectStoreNames.contains(STORE_NAME)) {
@@ -76,11 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         request.onsuccess = () => {
             const allWords = request.result;
-            
-            // Lọc các từ có ngày ôn tập bằng hoặc nhỏ hơn ngày hôm nay
             const todayWords = allWords.filter(word => word.nextReviewDate <= todayStr);
 
-            // Xóa dòng thông báo "Đang tải..."
             vocabListBody.innerHTML = "";
 
             if (todayWords.length === 0) {
@@ -88,16 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Đổ dữ liệu, đánh số thứ tự (STT) và render lên bảng
             todayWords.forEach((word, index) => {
                 const row = document.createElement('tr');
-                
                 row.innerHTML = `
                     <td class="text-center">${index + 1}</td>
                     <td><strong>${word.english}</strong></td>
                     <td>${word.vietnamese}</td>
                 `;
-                
                 vocabListBody.appendChild(row);
             });
         };
@@ -107,6 +107,5 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Kích hoạt tiến trình lấy dữ liệu khi tải trang xong
     initAndFetchTodayWords();
 });

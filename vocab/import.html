@@ -8,11 +8,79 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="vocab.css">
+    <style>
+        /* CSS bổ sung cho nút Tự động định nghĩa góc trên bên phải */
+        .sketch-container {
+            position: relative;
+        }
+
+        .auto-translate-wrapper {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 11;
+        }
+
+        /* Label giải thích nhỏ nhắn, đáng yêu xuất hiện khi di chuột gần hoặc cố định */
+        .auto-translate-label {
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 1.1rem;
+            color: #d97706;
+            background-color: #fef08a;
+            border: 1px dashed #C93638;
+            padding: 2px 8px;
+            border-radius: 6px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* Custom ô checkbox vẽ tay màu vàng pastel khớp hình vẽ */
+        .auto-translate-cb {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 35px;
+            height: 30px;
+            border: 2px solid #C93638;
+            border-radius: 8px;
+            background-color: #fef08a; /* Màu vàng nhạt đúng như ảnh */
+            cursor: pointer;
+            position: relative;
+            outline: none;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.2s;
+        }
+
+        .auto-translate-cb:checked {
+            background-color: #90cdf4; /* Đổi sang màu xanh dương nhạt khi kích hoạt */
+        }
+
+        .auto-translate-cb:checked::after {
+            content: '✓';
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 1.6rem;
+            color: #C93638;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
     <div class="sketch-container room-container">
+        <!-- Nút Back bên trái -->
         <button class="btn-back" id="backBtn">←</button>
+
+        <!-- Ô tích tự động thêm định nghĩa bên phải -->
+        <div class="auto-translate-wrapper">
+            <span class="auto-translate-label">Tự động dịch</span>
+            <input type="checkbox" class="auto-translate-cb" id="autoTranslateCb" title="Tự động dịch nghĩa">
+        </div>
 
         <div class="import-form">
             <label class="import-label">từ mới của bạn :</label>
@@ -22,8 +90,8 @@
             <input type="text" id="vietnamese-input" class="sketch-input" placeholder="Ví dụ: Xin chào (Bỏ trống nếu dán danh sách nhiều từ)" autocomplete="off">
 
             <div class="import-actions">
-                <button class="btn-action" id="bulkImportBtn">dán định dạng của bạn vào đây</button>
-                <button class="btn-action" id="addBtn">thêm</button>
+                <button class="btn" id="bulkImportBtn">dán định dạng của bạn vào đây</button>
+                <button class="btn" id="addBtn">thêm</button>
             </div>
         </div>
     </div>

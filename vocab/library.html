@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư Viện Từ Vựng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="vocab.css"> <!-- Import CSS chung của bạn -->
+    <link rel="stylesheet" href="library.css"> <!-- File CSS riêng của trang thư viện -->
+</head>
+<body>
+
+    <div class="sketch-container library-container">
+        <!-- Nút Back về vocab.html -->
+        <button class="btn-back" id="backBtn">←</button>
+
+        <!-- Thanh tiêu đề hướng dẫn & nút Thùng rác -->
+        <div class="library-header">
+            <p class="instruction-text">
+                tích chọn từ bạn muốn bỏ và nhấn thùng rác để xóa khỏi database
+            </p>
+            <button class="btn-trash" id="deleteSelectedBtn" title="Xóa các từ đã chọn">
+                <!-- Icon thùng rác vẽ tay SVG gọn gàng -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Bảng danh sách từ vựng dạng cuộn -->
+        <div class="library-table-wrapper">
+            <table class="library-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%">stt</th>
+                        <th style="width: 32%">từ mới</th>
+                        <th style="width: 32%">định nghĩa</th>
+                        <th style="width: 18%">lịch học</th>
+                        <th style="width: 10%">thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="libraryListBody">
+                    <tr>
+                        <td colspan="5" class="empty-notify">Đang tải danh sách từ vựng...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="library.js"></script>
+</body>
+</html>

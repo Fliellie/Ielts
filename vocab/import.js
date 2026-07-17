@@ -49,7 +49,6 @@ function saveWordToDB(english, vietnamese, silent = false) {
 
     const request = store.add(newWord);
     request.onsuccess = () => {
-        // Nếu import hàng loạt (silent = true) thì không hiện alert liên tục làm phiền người dùng
         if (!silent) alert(`Đã thêm thành công từ: "${english}"`);
     };
     request.onerror = () => {
@@ -57,11 +56,31 @@ function saveWordToDB(english, vietnamese, silent = false) {
     };
 }
 
-// 3. Xử lý Logic thông minh khi người dùng Copy-Paste định dạng ĐƠN LẺ "Từ - Nghĩa" vào ô 1
-document.getElementById('english-input').addEventListener('input', (e) => {
+// 3. Hàm gọi API Google Translate để lấy nghĩa
+async function fetchGoogleTranslation(text) {
+    try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text.trim())}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data && data[0] && data[0][0] && data[0][0][0]) {
+            return data[0][0][0].trim();
+        }
+    } catch (error) {
+        console.error("Lỗi Google Translate:", error);
+    }
+    return null;
+}
+
+// Lấy các phần tử giao diện
+const englishInput = document.getElementById('english-input');
+const vietnameseInput = document.getElementById('vietnamese-input');
+const autoTranslateCb = document.getElementById('autoTranslateCb');
+
+// 4. Xử lý Logic thông minh khi người dùng dán/nhập định dạng đơn lẻ "Từ - Nghĩa" vào ô 1
+englishInput.addEventListener('input', (e) => {
     const value = e.target.value;
     
-    // Nếu phát hiện chuỗi có xuống dòng (nhiều từ), tắt tính năng tự tách của ô đơn lẻ này để nút Bulk xử lý
     if (value.includes('\n') || value.includes('\r')) return;
 
     const separators = [':', '-', '/'];
@@ -77,47 +96,72 @@ document.getElementById('english-input').addEventListener('input', (e) => {
     if (detectedSeparator) {
         const parts = value.split(detectedSeparator);
         if (parts.length >= 2) {
-            document.getElementById('english-input').value = parts[0].trim();
-            document.getElementById('vietnamese-input').value = parts[1].trim();
-            document.getElementById('vietnamese-input').focus(); 
+            englishInput.value = parts[0].trim();
+            vietnameseInput.value = parts[1].trim();
+            vietnameseInput.focus(); 
         }
     }
 });
 
-// 4. Sự kiện khi click nút "Thêm" thủ công (1 từ lẻ)
-document.getElementById('addBtn').addEventListener('click', () => {
-    const eng = document.getElementById('english-input').value;
-    const vie = document.getElementById('vietnamese-input').value;
+// 5. ĐÃ THAY ĐỔI: Sự kiện khi click nút "Thêm" (Dịch tự động ngay tại đây nếu được kích hoạt)
+document.getElementById('addBtn').addEventListener('click', async () => {
+    const eng = englishInput.value.trim();
+    let vie = vietnameseInput.value.trim();
 
-    if (!eng.trim() || !vie.trim()) {
-        alert("Vui lòng điền đầy đủ cả từ mới lẫn định nghĩa nhé!");
+    if (!eng) {
+        alert("Vui lòng điền từ mới tiếng Anh trước nhé!");
+        englishInput.focus();
         return;
     }
 
+    // Nếu ô định nghĩa trống VÀ nút "Tự động dịch" đang được tích chọn
+    if (!vie && autoTranslateCb.checked) {
+        vietnameseInput.placeholder = "Đang tự động dịch...";
+        
+        const translatedResult = await fetchGoogleTranslation(eng);
+        
+        if (translatedResult) {
+            vie = translatedResult;
+            vietnameseInput.value = vie; // Điền nghĩa dịch được vào ô để người dùng nhìn thấy
+        } else {
+            alert("Không thể tự động dịch từ này. Vui lòng tự điền định nghĩa nhé!");
+            vietnameseInput.placeholder = "Ví dụ: Xin chào (Bỏ trống nếu dán danh sách nhiều từ)";
+            vietnameseInput.focus();
+            return;
+        }
+    }
+
+    // Kiểm tra cuối cùng trước khi lưu
+    if (!vie) {
+        alert("Vui lòng điền định nghĩa hoặc tích chọn ô 'Tự động dịch' ở góc trên nhé!");
+        vietnameseInput.focus();
+        return;
+    }
+
+    // Lưu từ vựng vào Database
     saveWordToDB(eng, vie);
 
-    document.getElementById('english-input').value = '';
-    document.getElementById('vietnamese-input').value = '';
-    document.getElementById('english-input').focus();
+    // Xóa form và reset placeholder chuẩn bị cho từ tiếp theo
+    englishInput.value = '';
+    vietnameseInput.value = '';
+    vietnameseInput.placeholder = "Ví dụ: Xin chào (Bỏ trống nếu dán danh sách nhiều từ)";
+    englishInput.focus();
 });
 
-// 5. ĐÃ SỬA: Xử lý sự kiện dán định dạng danh sách từ trực tiếp từ ô nhập liệu
+// 6. Xử lý sự kiện dán định dạng danh sách từ hàng loạt
 document.getElementById('bulkImportBtn').addEventListener('click', () => {
-    // Lấy dữ liệu văn bản từ ô nhập liệu english-input
-    const rawText = document.getElementById('english-input').value;
+    const rawText = englishInput.value;
     
     if (!rawText.trim()) {
         alert("Vui lòng dán danh sách từ của bạn vào ô 'từ mới của bạn' trước khi bấm nút này nhé!");
         return;
     }
 
-    // Tách văn bản thành các dòng độc lập
     const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
     
     let validWords = [];
     const separators = [':', '-', '/'];
 
-    // Lọc và phân tích cấu trúc từng dòng để đếm số từ hợp lệ
     lines.forEach(line => {
         let detectedSep = separators.find(sep => line.includes(sep));
         if (detectedSep) {
@@ -133,22 +177,19 @@ document.getElementById('bulkImportBtn').addEventListener('click', () => {
         return;
     }
 
-    // Kiểm tra nếu danh sách vượt quá 20 từ -> Đưa ra cảnh báo học quá nhiều
     if (validWords.length > 20) {
         const confirmProgress = confirm(`⚠️ Cảnh báo: Bạn chuẩn bị thêm ${validWords.length} từ. Nhồi nhét học quá 20 từ một lúc sẽ làm giảm hiệu quả ghi nhớ đáng kể đấy! Bạn vẫn muốn tiếp tục chứ?`);
-        if (!confirmProgress) return; // Dừng lại nếu người dùng bấm Hủy
+        if (!confirmProgress) return;
     }
 
-    // Tiến hành nạp dữ liệu vào IndexedDB
     validWords.forEach(word => {
-        saveWordToDB(word.eng, word.vie, true); // Đặt true để ẩn alert lẻ tẻ từng từ
+        saveWordToDB(word.eng, word.vie, true);
     });
 
     alert(`🎉 Đã xử lý và nạp thành công ${validWords.length} từ mới vào hệ thống học!`);
     
-    // Reset lại form sau khi nạp xong
-    document.getElementById('english-input').value = '';
-    document.getElementById('vietnamese-input').value = '';
+    englishInput.value = '';
+    vietnameseInput.value = '';
 });
 
 // Quay lại trang chủ 

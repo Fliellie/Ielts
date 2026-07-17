@@ -1,0 +1,163 @@
+/* Custom riêng cho trang Library đồng bộ với phong cách vẽ tay của bạn */
+
+.library-container {
+    background-color: #fef08a !important; /* Nền vàng nhạt giống phác thảo */
+    max-width: 950px !important;
+    width: 92%;
+    height: 85vh;
+    padding: 20px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Header chứa hướng dẫn và icon thùng rác */
+.library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 0 10px;
+}
+
+.library-header .instruction-text {
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    font-size: 1.5rem;
+    color: #d97706; /* Màu cam đất */
+    margin: 0;
+    text-align: left;
+    flex: 1;
+}
+
+/* Nút thùng rác vẽ tay */
+.btn-trash {
+    background-color: #a8ebd0; /* Màu xanh mint đồng bộ */
+    border: 2px solid #C93638;
+    border-radius: 20px;
+    width: 120px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+    transition: transform 0.1s, background-color 0.2s;
+    padding: 5px;
+}
+
+.btn-trash svg {
+    width: 24px;
+    height: 24px;
+    stroke: #C93638;
+}
+
+.btn-trash:hover {
+    background-color: #ffb3b3; /* Đổi sang hồng khi hover báo hiệu xóa */
+}
+
+.btn-trash:active {
+    transform: translate(1px, 1px);
+    box-shadow: none;
+}
+
+/* Wrapper bo viền xanh mint có cuộn */
+.library-table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    border: 2px solid #C93638;
+    border-radius: 12px;
+    background-color: #a8ebd0; /* Nền xanh mint cho phần bảng như hình vẽ */
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Tùy biến thanh cuộn */
+.library-table-wrapper::-webkit-scrollbar {
+    width: 10px;
+}
+.library-table-wrapper::-webkit-scrollbar-track {
+    background: #a8ebd0;
+    border-left: 1px solid #C93638;
+}
+.library-table-wrapper::-webkit-scrollbar-thumb {
+    background: #90cdf4;
+    border: 2px solid #C93638;
+    border-radius: 6px;
+}
+
+/* Định dạng bảng */
+.library-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    font-size: 1.4rem;
+    color: #000000;
+}
+
+/* Border đỏ đứt đoạn hoặc nét vẽ giữa các cột */
+.library-table th, 
+.library-table td {
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 2px solid #C93638;
+    border-right: 2px solid #C93638;
+}
+
+.library-table th:last-child,
+.library-table td:last-child {
+    border-right: none; /* Cột cuối không cần border phải */
+}
+
+/* Header bảng */
+.library-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #a8ebd0;
+    color: #2d3748;
+    font-size: 1.6rem;
+    z-index: 1;
+    border-bottom: 3px double #C93638;
+}
+
+/* Style cho các ô Checkbox thao tác chọn xóa */
+.select-vocab-cb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 26px;
+    height: 26px;
+    border: 2px solid #C93638;
+    border-radius: 6px;
+    background-color: #90cdf4; /* Màu xanh dương nhạt như phác thảo */
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    display: inline-block;
+    vertical-align: middle;
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+}
+
+.select-vocab-cb:checked {
+    background-color: #ffb3b3; /* Chuyển sang đỏ nhạt khi được tích chọn để chuẩn bị xóa */
+}
+
+.select-vocab-cb:checked::after {
+    content: '✓';
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    font-size: 1.5rem;
+    color: #C93638;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    font-weight: bold;
+}
+
+/* Trạng thái trống */
+.empty-notify {
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    font-size: 1.6rem;
+    color: #718096;
+    text-align: center;
+    font-style: italic;
+    padding: 40px 0;
+}
