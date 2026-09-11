@@ -95,32 +95,50 @@ function renderWords() {
             answerText = currentDisplayMode === 'en' ? word.english : word.vietnamese;
         }
 
+        // Thêm style cursor: pointer để người dùng biết các thẻ có thể click được
         wordRow.innerHTML = `
             <div class="word-index">${index + 1}</div>
-            <div class="word-card-question">${questionText}</div>
+            <div class="word-card-question" style="cursor: pointer;">${questionText}</div>
             <div class="word-checkbox-container">
                 <input type="checkbox" class="word-checkbox" ${isMastered ? 'checked' : ''} data-id="${word.id}">
             </div>
-            <div class="word-card-answer">${answerText}</div>
+            <div class="word-card-answer" style="cursor: pointer;">${answerText}</div>
             <button class="btn-reveal-single" data-id="${word.id}">${isAnswerVisible ? '👁️' : '🔒'}</button>
         `;
 
-        const checkbox = wordRow.querySelector('.word-checkbox');
-        checkbox.addEventListener('change', (e) => {
-            if (e.target.checked) masteredWordIds.add(word.id);
-            else masteredWordIds.delete(word.id);
+        // 1. Hàm bật/tắt trạng thái Đã Thuộc (Checkbox)
+        const toggleMastered = () => {
+            if (masteredWordIds.has(word.id)) {
+                masteredWordIds.delete(word.id);
+            } else {
+                masteredWordIds.add(word.id);
+            }
             renderWords();
-        });
+        };
 
-        const btnReveal = wordRow.querySelector('.btn-reveal-single');
-        btnReveal.addEventListener('click', () => {
+        // 2. Hàm bật/tắt Mở Khóa Đáp Án
+        const toggleReveal = () => {
             if (revealedWordIds.has(word.id)) {
                 revealedWordIds.delete(word.id);
             } else {
                 revealedWordIds.add(word.id);
             }
             renderWords();
-        });
+        };
+
+        // Bắt sự kiện Click cho Checkbox & Thẻ Từ Mới (Thẻ Câu Hỏi)
+        const checkbox = wordRow.querySelector('.word-checkbox');
+        const questionCard = wordRow.querySelector('.word-card-question');
+        
+        checkbox.addEventListener('change', toggleMastered);
+        questionCard.addEventListener('click', toggleMastered);
+
+        // Bắt sự kiện Click cho Nút 🔒/👁️ & Thẻ Định Nghĩa (Thẻ Đáp Án)
+        const btnReveal = wordRow.querySelector('.btn-reveal-single');
+        const answerCard = wordRow.querySelector('.word-card-answer');
+
+        btnReveal.addEventListener('click', toggleReveal);
+        answerCard.addEventListener('click', toggleReveal);
 
         container.appendChild(wordRow);
     });
