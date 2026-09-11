@@ -77,25 +77,28 @@ const englishInput = document.getElementById('english-input');
 const vietnameseInput = document.getElementById('vietnamese-input');
 const autoTranslateCb = document.getElementById('autoTranslateCb');
 
-// 4. Xử lý Logic thông minh khi người dùng dán/nhập định dạng đơn lẻ "Từ - Nghĩa" vào ô 1
-englishInput.addEventListener('input', (e) => {
-    const value = e.target.value;
-    
-    if (value.includes('\n') || value.includes('\r')) return;
+// 4. ĐÃ SỬA: CHỈ tự động tách "Từ - Nghĩa" khi người dùng DÁN (PASTE) văn bản
+englishInput.addEventListener('paste', (e) => {
+    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+    if (!pastedText) return;
+
+    // Nếu dán nội dung nhiều dòng (danh sách) thì giữ nguyên để dùng cho nút "dán định dạng"
+    if (pastedText.includes('\n') || pastedText.includes('\r')) return;
 
     const separators = [':', '-', '/'];
     let detectedSeparator = null;
 
     for (let sep of separators) {
-        if (value.includes(sep)) {
+        if (pastedText.includes(sep)) {
             detectedSeparator = sep;
             break;
         }
     }
 
     if (detectedSeparator) {
-        const parts = value.split(detectedSeparator);
-        if (parts.length >= 2) {
+        const parts = pastedText.split(detectedSeparator);
+        if (parts.length >= 2 && parts[0].trim() && parts[1].trim()) {
+            e.preventDefault(); // Chặn hành vi dán thông thường
             englishInput.value = parts[0].trim();
             vietnameseInput.value = parts[1].trim();
             vietnameseInput.focus(); 
@@ -103,8 +106,8 @@ englishInput.addEventListener('input', (e) => {
     }
 });
 
-// 5. ĐÃ THAY ĐỔI: Sự kiện khi click nút "Thêm" (Dịch tự động ngay tại đây nếu được kích hoạt)
-document.getElementById('addBtn').addEventListener('click', async () => {
+// 5. Hàm xử lý logic Thêm Từ
+async function handleAddWord() {
     const eng = englishInput.value.trim();
     let vie = vietnameseInput.value.trim();
 
@@ -122,7 +125,7 @@ document.getElementById('addBtn').addEventListener('click', async () => {
         
         if (translatedResult) {
             vie = translatedResult;
-            vietnameseInput.value = vie; // Điền nghĩa dịch được vào ô để người dùng nhìn thấy
+            vietnameseInput.value = vie;
         } else {
             alert("Không thể tự động dịch từ này. Vui lòng tự điền định nghĩa nhé!");
             vietnameseInput.placeholder = "Ví dụ: Xin chào (Bỏ trống nếu dán danh sách nhiều từ)";
@@ -146,6 +149,25 @@ document.getElementById('addBtn').addEventListener('click', async () => {
     vietnameseInput.value = '';
     vietnameseInput.placeholder = "Ví dụ: Xin chào (Bỏ trống nếu dán danh sách nhiều từ)";
     englishInput.focus();
+}
+
+document.getElementById('addBtn').addEventListener('click', handleAddWord);
+
+// Kích hoạt sự kiện phím Enter để thêm từ
+englishInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        if (!englishInput.value.includes('\n')) {
+            event.preventDefault();
+            handleAddWord();
+        }
+    }
+});
+
+vietnameseInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        handleAddWord();
+    }
 });
 
 // 6. Xử lý sự kiện dán định dạng danh sách từ hàng loạt

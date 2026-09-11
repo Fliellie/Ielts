@@ -7,9 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="vocab.css">
+    
     <style>
-        /* Thiết lập background màu xanh mint nhạt đặc trưng */
         body {
             background-color: #a8ebd0 !important; 
             margin: 0;
@@ -18,90 +17,80 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            font-family: 'Patrick Hand', cursive, sans-serif;
         }
 
-        /* Container vẽ tay chính */
+        /* Khung chính mở rộng gần như Full Màn Hình */
         .sketch-container {
             position: relative;
-            max-width: 950px !important;
-            width: 90%;
-            height: 85vh; /* Khống chế chiều cao của khung để cuộn */
+            width: 96% !important;
+            max-width: 1400px !important;
+            height: 92vh;
             background-color: #a8ebd0 !important;
             border: 3px double #C93638;
             box-shadow: none;
-            padding: 0 !important; /* Reset padding để header sát viền */
+            padding: 0 !important;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border-radius: 8px;
+            border-radius: 12px;
         }
 
-        /* THANH CỐ ĐỊNH Ở TRÊN CÙNG */
+        /* Header linh hoạt chứa các nút và nút Nộp bài ở góc phải */
         .sticky-header {
-            background-color: #fef08a; /* Màu vàng nhạt */
+            background-color: #fef08a;
             border-bottom: 2px solid #C93638;
-            padding: 15px 20px;
+            padding: 12px 25px;
             display: flex;
-            justify-content: center;
-            gap: 15px; /* Giảm gap một chút để vừa 4 nút */
+            align-items: center;
+            justify-content: space-between;
             z-index: 10;
-            position: sticky;
-            top: 0;
         }
 
-        /* Vùng nội dung cuộn bên dưới header */
+        .header-buttons-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         .scrollable-content {
             flex: 1;
             overflow-y: auto;
-            padding: 20px 30px 40px 30px;
-            position: relative;
+            padding: 20px 40px 40px 40px;
         }
 
-        /* Custom thanh cuộn vẽ tay */
-        .scrollable-content::-webkit-scrollbar {
-            width: 12px;
-        }
-        .scrollable-content::-webkit-scrollbar-track {
-            background: #a8ebd0;
-            border-left: 2px solid #C93638;
-        }
+        .scrollable-content::-webkit-scrollbar { width: 10px; }
+        .scrollable-content::-webkit-scrollbar-track { background: #a8ebd0; }
         .scrollable-content::-webkit-scrollbar-thumb {
             background: #90cdf4;
             border: 2px solid #C93638;
             border-radius: 6px;
         }
 
-        /* Dòng hướng dẫn màu cam đất */
         .instruction-text {
-            font-family: 'Patrick Hand', cursive, sans-serif;
             font-size: 1.6rem;
             color: #d97706;
             text-align: center;
             margin-bottom: 5px;
-            line-height: 1.4;
-            padding: 0 40px;
         }
 
         .note-text {
-            font-family: 'Patrick Hand', cursive, sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: #d97706;
             text-align: center;
-            margin-bottom: 25px;
-            margin-top: 0;
+            margin-bottom: 20px;
             font-style: italic;
         }
 
-        /* Layout danh sách dạng bảng dọc chứa các hàng từ vựng */
         .word-panel {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            max-width: 750px; /* Tăng nhẹ để chứa thêm ô tích */
+            width: 100%;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
-        /* Hàng hiển thị song song Đề bài và Đáp án */
         .word-row {
             display: flex;
             align-items: center;
@@ -110,57 +99,47 @@
         }
 
         .word-index {
-            font-family: 'Patrick Hand', cursive, sans-serif;
             font-size: 2.2rem;
             color: #2d3748;
-            width: 30px;
+            width: 35px;
             text-align: right;
         }
 
-        /* Khung Đề bài (màu hồng pastel) */
         .word-card-question {
             flex: 1;
             background-color: #ffb3b3;
             border: 2px solid #C93638;
             border-radius: 12px;
             padding: 10px 15px;
-            font-family: 'Patrick Hand', cursive, sans-serif;
             font-size: 1.5rem;
-            color: #000000;
+            color: #000;
             text-align: center;
-            min-height: 28px;
+            min-height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
         }
 
-        /* Khung Đáp án (màu vàng pastel nhạt) */
         .word-card-answer {
             flex: 1;
-            background-color: #fef08a; /* Màu vàng nhạt đồng màu header */
+            background-color: #fef08a;
             border: 2px solid #C93638;
             border-radius: 12px;
             padding: 10px 15px;
-            font-family: 'Patrick Hand', cursive, sans-serif;
             font-size: 1.5rem;
-            color: #000000;
+            color: #000;
             text-align: center;
-            min-height: 28px;
+            min-height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
-            transition: background-color 0.2s;
         }
 
-        /* Custom Ô Checkbox vuông vẽ tay ở giữa */
+        /* Checkbox ẩn từ khi đã thuộc */
         .word-checkbox-container {
             display: flex;
             align-items: center;
-            justify-content: center;
         }
-        
         .word-checkbox {
             appearance: none;
             -webkit-appearance: none;
@@ -171,20 +150,11 @@
             background-color: #fff;
             cursor: pointer;
             position: relative;
-            outline: none;
-            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
         }
-
-        .word-checkbox:checked {
-            background-color: #fff;
-        }
-
-        /* Tạo hình dấu tích bằng font Patrick Hand hoặc CSS */
         .word-checkbox:checked::after {
             content: '✓';
-            font-family: 'Patrick Hand', cursive, sans-serif;
             font-size: 1.8rem;
-            color: #d97706; /* Màu cam giống chữ hướng dẫn */
+            color: #d97706;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -192,65 +162,152 @@
             font-weight: bold;
         }
 
-        /* Trạng thái khi hàng bị ẩn đi (Chỉ hiện ô trống/dấu gạch ngang như hình phác thảo) */
-        .word-row.hidden-word .word-card-question {
-            background-color: #ffb3b3;
-            color: transparent;
-            text-shadow: none;
-        }
-        .word-row.hidden-word .word-card-question::after {
-            content: '— — —';
-            color: #000;
-        }
-        .word-row.hidden-word .word-card-answer {
-            background-color: #fef08a;
-            color: transparent;
-            text-shadow: none;
-        }
-
-        /* Override nút btn sọc chéo màu xanh dương nhạt */
-        .btn-quiz {
-            background-color: #90cdf4 !important;
-            max-width: 220px !important;
-            font-size: 1.4rem;
-            padding: 8px 15px;
+        /* Nút lật xem đáp án riêng cho từng từ */
+        .btn-reveal-single {
+            width: 36px;
+            height: 36px;
+            background-color: #a8ebd0;
             border: 2px solid #C93638;
             border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Patrick Hand', cursive, sans-serif;
-            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-quiz:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
-        }
-
-        .empty-notify {
-            font-family: 'Patrick Hand', cursive, sans-serif;
-            font-size: 1.6rem;
-            color: #718096;
-            text-align: center;
-            font-style: italic;
-            margin-top: 30px;
-        }
-
-        /* Định vị nút back tròn góc trên bên trái */
-        .btn-back {
-            position: absolute !important;
-            top: 15px;
-            left: 20px;
-            z-index: 11;
-            background: #ffb3b3;
-            border: 2px solid #C93638;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.5rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.1s;
+        }
+        .btn-reveal-single:active { transform: scale(0.95); }
+
+        /* Trạng thái khi từ bị ẩn */
+        .word-row.hidden-word .word-card-question,
+        .word-row.hidden-word .word-card-answer {
+            color: transparent !important;
+            text-shadow: none !important;
+        }
+
+        /* Định dạng chung nút bấm */
+        .btn-quiz {
+            background-color: #90cdf4 !important;
+            font-size: 1.3rem;
+            padding: 8px 16px;
+            border: 2px solid #C93638;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        .btn-submit {
+            background-color: #ffb3b3 !important;
+            font-weight: bold;
+        }
+
+        .btn-back {
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            z-index: 11;
+            background: #ffb3b3;
+            border: 2px solid #C93638;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- POPUP MODAL NỘP BÀI --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-card {
+            background: #a8ebd0;
+            border: 3px solid #C93638;
+            border-radius: 16px;
+            padding: 25px 35px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            color: #C93638;
+            font-size: 1.8rem;
+            text-align: center;
+            margin: 0 0 15px 0;
+        }
+
+        .rating-list {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .rating-word-box {
+            flex: 1;
+            background: #fff;
+            border: 2px solid #C93638;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 1.3rem;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rating-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .rating-circle {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #C93638;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background: #fff;
+            user-select: none;
+        }
+
+        .rating-circle.selected {
+            background: #C93638;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 10px;
         }
     </style>
 </head>
@@ -260,20 +317,38 @@
         <button class="btn-back" id="backBtn">←</button>
 
         <div class="sticky-header">
-            <button class="btn btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
-            <button class="btn btn-quiz" id="shuffleBtn">xáo trộn</button>
-            <button class="btn btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
-            <button class="btn btn-quiz" id="showAllBtn">hiện tất cả</button>
+            <div style="width: 40px;"></div> <!-- Spacer căn lề nút Back -->
+            <div class="header-buttons-left">
+                <button class="btn btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
+                <button class="btn btn-quiz" id="shuffleBtn">xáo trộn</button>
+                <button class="btn btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
+                <button class="btn btn-quiz" id="showAllBtn">hiện tất cả</button>
+            </div>
+            <button class="btn btn-quiz btn-submit" id="submitBtn">nộp bài</button>
         </div>
 
         <div class="scrollable-content">
-            <p class="instruction-text" id="instruction">
-                Kiểm tra miệng: hãy trả lời miệng với mode tiếng anh và viết ra giấy tiếng anh với mode tiếng việt nhé
+            <p class="instruction-text">
+                Hãy tích vào ô ở giữa để đánh dấu bạn đã nhớ từ đó ở phiên hiện tại
             </p>
-            <p class="note-text">lưu ý : nhấn dấu cách để biết đáp án và nhấn tích vào cạnh từ bạn đã thuộc để ẩn từ đó đi</p>
+            <p class="note-text">lưu ý : nhấn dấu cách để biết toàn bộ đáp án, dùng ô xanh mint góc phải để xem đáp án từng từ, tích chọn để ẩn từ đã thuộc</p>
 
             <div class="word-panel" id="wordListContainer">
-                <div class="empty-notify">Đang tải danh sách từ hôm nay...</div>
+                <div style="text-align: center; font-size: 1.5rem;">Đang tải danh sách từ hôm nay...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP NỘP BÀI ĐÁNH GIÁ MỨC ĐỘ THUỘC -->
+    <div class="modal-overlay" id="ratingModal">
+        <div class="modal-card">
+            <h3 class="modal-title">đánh giá mức độ thuộc của các từ bạn học hôm nay</h3>
+            <div class="rating-list" id="ratingList">
+                <!-- Các hàng đánh giá sẽ tự động render tại đây -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-quiz" id="modalBackBtn" style="background:#ffb3b3 !important;">Back</button>
+                <button class="btn btn-quiz" id="modalOkBtn" style="background:#fef08a !important;">OK</button>
             </div>
         </div>
     </div>

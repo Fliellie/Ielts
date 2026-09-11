@@ -7,9 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="vocab.css">
+    <link rel="stylesheet" href="import.css">
     <style>
-        /* CSS bổ sung cho nút Tự động định nghĩa góc trên bên phải */
         .sketch-container {
             position: relative;
         }
@@ -24,7 +23,6 @@
             z-index: 11;
         }
 
-        /* Label giải thích nhỏ nhắn, đáng yêu xuất hiện khi di chuột gần hoặc cố định */
         .auto-translate-label {
             font-family: 'Patrick Hand', cursive, sans-serif;
             font-size: 1.1rem;
@@ -37,7 +35,6 @@
             white-space: nowrap;
         }
 
-        /* Custom ô checkbox vẽ tay màu vàng pastel khớp hình vẽ */
         .auto-translate-cb {
             appearance: none;
             -webkit-appearance: none;
@@ -45,7 +42,7 @@
             height: 30px;
             border: 2px solid #C93638;
             border-radius: 8px;
-            background-color: #fef08a; /* Màu vàng nhạt đúng như ảnh */
+            background-color: #fef08a;
             cursor: pointer;
             position: relative;
             outline: none;
@@ -54,7 +51,7 @@
         }
 
         .auto-translate-cb:checked {
-            background-color: #90cdf4; /* Đổi sang màu xanh dương nhạt khi kích hoạt */
+            background-color: #90cdf4;
         }
 
         .auto-translate-cb:checked::after {
@@ -67,6 +64,19 @@
             left: 50%;
             transform: translate(-50%, -55%);
             font-weight: bold;
+        }
+
+        /* BỔ SUNG: Dòng ghi chú nhắc nhở dán danh sách */
+        .bulk-tip-box {
+            background-color: #fef3c7;
+            border: 1px dashed #d97706;
+            color: #b45309;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 1.15rem;
+            line-height: 1.3;
+            margin-bottom: 15px;
+            text-align: left;
         }
     </style>
 </head>
@@ -83,6 +93,11 @@
         </div>
 
         <div class="import-form">
+            <!-- Đoạn mô tả hướng dẫn dán danh sách -->
+            <div class="bulk-tip-box">
+                💡 <strong>Hey!</strong> Nếu bạn muốn dán danh sách từ vào đây để không phải gõ từng từ, hãy đảm bảo giữa từ và nghĩa có dấu <strong>-</strong> hoặc <strong>:</strong> nhé.
+            </div>
+
             <label class="import-label">từ mới của bạn :</label>
             <input type="text" id="english-input" class="sketch-input" placeholder="Ví dụ: Hello hoặc copy đoạn văn vào đây..." autocomplete="off">
 
@@ -90,7 +105,7 @@
             <input type="text" id="vietnamese-input" class="sketch-input" placeholder="Ví dụ: Xin chào (Bỏ trống nếu dán danh sách nhiều từ)" autocomplete="off">
 
             <div class="import-actions">
-                <button class="btn" id="bulkImportBtn">dán định dạng của bạn vào đây</button>
+                <button class="btn" id="bulkImportBtn">thêm cả đoạn</button>
                 <button class="btn" id="addBtn">thêm</button>
             </div>
         </div>
