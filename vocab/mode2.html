@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiểm Tra Từ Vựng - Nâng Cấp Lần 2</title>
+    <title>Kiểm Tra Từ Vựng - Khóa Ô Nhập Đã Tích</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -97,7 +97,7 @@
             border-radius: 20px;
         }
 
-        /* Phase Indicator Banner */
+        /* Banner thông báo */
         .phase-banner {
             background-color: #a7f3d0;
             color: #065f46;
@@ -108,7 +108,7 @@
             margin: 15px auto 10px auto;
             width: 85%;
             max-width: 950px;
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
@@ -193,7 +193,7 @@
             font-weight: bold;
         }
 
-        /* Context Container (Thẻ Ngữ Cảnh Nâu) */
+        /* Context Container */
         .context-display-box {
             flex: 2.2;
             background-color: #4a1d00;
@@ -241,11 +241,12 @@
             box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
             background-color: #5c2400;
         }
-        .word-input-box::placeholder {
-            color: #d97706;
-            font-style: italic;
-            opacity: 0.85;
-            font-size: 1.15rem;
+        .word-input-box:disabled {
+            background-color: #2a1000 !important;
+            border-color: #4a1d00 !important;
+            color: #a8a29e !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
         }
 
         /* Score Badge */
@@ -254,24 +255,23 @@
             background: #331800;
             border: 2px solid #7c2d12;
             border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 1.25rem;
+            padding: 6px 12px;
+            font-size: 1.3rem;
             color: #fde047;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
             font-weight: bold;
         }
 
-        /* Visual Feedback Flash */
+        /* Feedback Flash */
         .flash-correct { animation: flashGreen 0.6s ease; }
         .flash-partial { animation: flashYellow 0.6s ease; }
         .flash-wrong { animation: flashRed 0.6s ease; }
 
         @keyframes flashGreen { 0% { background-color: #15803d; } 100% { background-color: #4a1d00; } }
         @keyframes flashYellow { 0% { background-color: #a16207; } 100% { background-color: #4a1d00; } }
-        @keyframes flashRed { 0% { background-color: #b91c1c; } 100% { background-color: #4a1d00; } }
+        @keyframes flashRed { 0% { background-color: #991b1b; } 100% { background-color: #4a1d00; } }
 
         /* Modal Styles */
         .modal-overlay {
@@ -315,12 +315,12 @@
                 <button class="btn-quiz" id="showAllBtn">hiện tất cả</button>
                 <button class="btn-quiz" id="promptAiBtn" style="background-color: #9333ea !important; border-color: #6b21a8;">Prompt AI</button>
             </div>
-            <button class="btn-quiz btn-next-phase" id="phaseActionButton">Lượt 2 -></button>
+            <button class="btn-quiz btn-next-phase" id="phaseActionButton">nộp bài</button>
         </div>
 
         <!-- Banner thông báo giai đoạn -->
         <div class="phase-banner" id="phaseBanner">
-            Lượt 1: ngữ cảnh
+            Lượt 2: sau khi điền hết hãy ấn xáo trộn để kiểm tra lại lần 2, nếu đã hoàn thành ca học, nhấn nộp bài
         </div>
 
         <!-- Danh sách từ vựng -->
@@ -352,16 +352,19 @@
         const STORE_NAME = 'words';
 
         let db;
-        let originalWords = [];    // Lưu danh sách 20 từ ban đầu
-        let activeWords = [];      // Danh sách từ đang làm việc
-        let currentPhase = 'context'; // 'context' (Lượt 1) hoặc 'main' (Lượt 2)
-        let currentDisplayMode = 'en'; // 'en' hoặc 'vi'
+        let originalWords = [];    
+        let activeWords = [];      
+        let currentPhase = 'context'; 
+        let currentDisplayMode = 'en'; 
         let showAnswersAll = false;
-        let masteredWordIds = new Set();
-        let revealedWordIds = new Set(); // Bộ nhớ bật/tắt xem đáp án riêng từng từ
-        let wordInputs = {};       // Ô điền đáp án Lượt 2
-        let sentenceInputs = {};   // Ô điền 2 câu mẫu thực hành Lượt 1
-        let wordScores = {};       // Lịch sử điểm: { id: [3, 2, 3] }
+        let masteredWordIds = new Set(); 
+        let wordInputs = {};       
+        let sentenceInputs = {};   
+        
+        let completedRounds = 0;       
+        let wordScoreHistory = {};     
+        let currentRoundScores = {};   
+        let frozenAvgScores = {};      
 
         function initDB() {
             return new Promise((resolve, reject) => {
@@ -387,7 +390,6 @@
             return localDate.toISOString().split('T')[0]; 
         }
 
-        // Tải dữ liệu & Giới hạn tối đa 20 từ/ngày, đẩy từ dư thừa sang ngày tiếp theo
         function loadAndBalanceWords() {
             return new Promise((resolve, reject) => {
                 const todayStr = getTodayString();
@@ -407,7 +409,6 @@
                         return word.nextReviewDate <= todayStr;
                     });
 
-                    // CHỈ HỌC TỐI ĐA 20 TỪ 1 NGÀY
                     if (dueWords.length > 20) {
                         const todayList = dueWords.slice(0, 20);
                         const excessList = dueWords.slice(20);
@@ -442,7 +443,7 @@
                     originalWords = dueWords.filter(w => w.nextReviewDate <= twoWeeksStr);
                     originalWords.forEach(w => {
                         if (!w.timesLearned) w.timesLearned = 1;
-                        wordScores[w.id] = [];
+                        wordScoreHistory[w.id] = [];
                     });
 
                     activeWords = JSON.parse(JSON.stringify(originalWords));
@@ -477,16 +478,19 @@
         }
 
         function getAverageScore(wordId) {
-            const scores = wordScores[wordId];
-            if (!scores || scores.length === 0) {
-                return { avg: 1, count: 0 };
+            if (frozenAvgScores[wordId] !== undefined) {
+                return frozenAvgScores[wordId];
             }
-            const sum = scores.reduce((a, b) => a + b, 0);
-            const avg = Math.ceil(sum / scores.length);
-            return { avg, count: scores.length };
+
+            const history = wordScoreHistory[wordId] || [];
+            if (history.length === 0) {
+                return currentRoundScores[wordId] !== undefined ? currentRoundScores[wordId] : 0;
+            }
+
+            const sum = history.reduce((a, b) => a + b, 0);
+            return Math.ceil(sum / history.length);
         }
 
-        // RENDER GIAO DIỆN
         function render() {
             const container = document.getElementById('wordListContainer');
             container.innerHTML = '';
@@ -517,26 +521,30 @@
                 const questionText = currentDisplayMode === 'en' ? word.vietnamese : word.english;
                 const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
 
-                // STT
                 const indexDiv = document.createElement('div');
                 indexDiv.className = 'word-index';
                 indexDiv.textContent = index + 1;
 
-                // Thẻ hỏi
                 const questionCard = document.createElement('div');
                 questionCard.className = 'word-card-question';
-                questionCard.textContent = isMastered ? '— — —' : questionText;
+                questionCard.textContent = questionText;
 
-                // Checkbox ẩn từ
                 const checkboxContainer = document.createElement('div');
                 checkboxContainer.className = 'word-checkbox-container';
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'word-checkbox';
                 checkbox.checked = isMastered;
+
+                // Khi tích chọn: Đóng băng điểm trung bình & Khóa ô nhập liệu
                 checkbox.addEventListener('change', () => {
-                    if (masteredWordIds.has(word.id)) masteredWordIds.delete(word.id);
-                    else masteredWordIds.add(word.id);
+                    if (checkbox.checked) {
+                        masteredWordIds.add(word.id);
+                        frozenAvgScores[word.id] = getAverageScore(word.id);
+                    } else {
+                        masteredWordIds.delete(word.id);
+                        delete frozenAvgScores[word.id];
+                    }
                     render();
                 });
                 checkboxContainer.appendChild(checkbox);
@@ -545,10 +553,8 @@
                 wordRow.appendChild(questionCard);
                 wordRow.appendChild(checkboxContainer);
 
-                // CHẾ ĐỘ NGỮ CẢNH (LƯỢT 1)
                 if (currentPhase === 'context') {
                     const isNewWord = (word.timesLearned <= 2);
-
                     const contextBox = document.createElement('div');
                     contextBox.className = 'context-display-box';
 
@@ -582,6 +588,8 @@
                     practiceInput.className = 'word-input-box';
                     practiceInput.placeholder = 'đây là ô điền người dùng sẽ điền 2 câu mẫu sử dụng từ mới';
                     practiceInput.value = sentenceInputs[word.id] || '';
+                    if (isMastered) practiceInput.disabled = true;
+
                     practiceInput.addEventListener('input', (e) => {
                         sentenceInputs[word.id] = e.target.value;
                     });
@@ -589,26 +597,33 @@
                     wordRow.appendChild(contextBox);
                     wordRow.appendChild(practiceInput);
                 } 
-                // CHẾ ĐỘ KIỂM TRA CHÍNH (LƯỢT 2)
                 else {
-                    const isRevealed = revealedWordIds.has(word.id);
-
                     const inputAnswer = document.createElement('input');
                     inputAnswer.type = 'text';
                     inputAnswer.className = 'word-input-box';
                     inputAnswer.dataset.index = index;
-                    inputAnswer.value = (showAnswersAll || isRevealed) ? correctAnswer : (wordInputs[word.id] || '');
+                    inputAnswer.value = showAnswersAll ? correctAnswer : (wordInputs[word.id] || '');
+
+                    // KHÓA Ô NHẬP NẾU TỪ ĐÃ ĐƯỢC TÍCH CHECKBOX
+                    if (isMastered) {
+                        inputAnswer.disabled = true;
+                    }
 
                     inputAnswer.addEventListener('keydown', (e) => {
                         if (e.key === 'ArrowDown') {
                             e.preventDefault();
-                            const nextInput = document.querySelector(`input[data-index="${index + 1}"]`);
-                            if (nextInput) nextInput.focus();
+                            let nextIdx = index + 1;
+                            while (nextIdx < activeWords.length) {
+                                const nextWord = activeWords[nextIdx];
+                                if (!masteredWordIds.has(nextWord.id)) {
+                                    const nextInput = document.querySelector(`input[data-index="${nextIdx}"]`);
+                                    if (nextInput) { nextInput.focus(); break; }
+                                }
+                                nextIdx++;
+                            }
                         } else if (e.key === 'Enter') {
                             e.preventDefault();
-                            gradeSingleWord(word, inputAnswer.value, inputAnswer);
-                            const nextInput = document.querySelector(`input[data-index="${index + 1}"]`);
-                            if (nextInput) nextInput.focus();
+                            gradeSingleWord(word, inputAnswer.value, inputAnswer, index);
                         }
                     });
 
@@ -616,33 +631,12 @@
                         wordInputs[word.id] = e.target.value;
                     });
 
-                    // Nút 🔒 / 👁️ BẤM XEM ĐÁP ÁN RIÊNG TỪNG TỪ
-                    const btnReveal = document.createElement('button');
-                    btnReveal.className = 'btn-quiz';
-                    btnReveal.style.padding = '4px 10px';
-                    btnReveal.style.fontSize = '1.3rem';
-                    btnReveal.style.backgroundColor = isRevealed ? '#a7f3d0' : '#331800';
-                    btnReveal.style.borderColor = '#7c2d12';
-                    btnReveal.innerHTML = isRevealed ? '👁️' : '🔒';
-                    btnReveal.title = 'Bấm để xem/ẩn đáp án từ này';
-
-                    btnReveal.addEventListener('click', () => {
-                        if (revealedWordIds.has(word.id)) {
-                            revealedWordIds.delete(word.id);
-                        } else {
-                            revealedWordIds.add(word.id);
-                        }
-                        render();
-                    });
-
-                    // THẺ ĐIỂM SỐ TRUNG BÌNH (Ví dụ: 3/1)
-                    const scoreObj = getAverageScore(word.id);
+                    const avgScore = getAverageScore(word.id);
                     const scoreBadge = document.createElement('div');
                     scoreBadge.className = 'score-badge';
-                    scoreBadge.innerHTML = `${scoreObj.avg}/${scoreObj.count}`;
+                    scoreBadge.innerHTML = `${avgScore}/${completedRounds}`;
 
                     wordRow.appendChild(inputAnswer);
-                    wordRow.appendChild(btnReveal);
                     wordRow.appendChild(scoreBadge);
                 }
 
@@ -650,43 +644,58 @@
             });
         }
 
-        // Chấm điểm ngay lập tức cho 1 từ vừa điền (Enter)
-        function gradeSingleWord(word, userText, inputElement) {
+        function gradeSingleWord(word, userText, inputElement, index) {
             if (!userText || userText.trim() === '') return;
 
             const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
-            const distance = getLevenshteinDistance(userText, correctAnswer);
+            
+            let rawTyped = userText;
+            if (rawTyped.includes('->')) {
+                rawTyped = rawTyped.split('->')[0].trim();
+            }
+
+            const distance = getLevenshteinDistance(rawTyped, correctAnswer);
 
             let score = 0;
             if (distance <= 1) {
-                score = 3;
-                if (inputElement) {
-                    inputElement.classList.add('flash-correct');
-                    setTimeout(() => inputElement.classList.remove('flash-correct'), 600);
-                }
+                score = 3; 
+                wordInputs[word.id] = rawTyped;
+                inputElement.classList.add('flash-correct');
+                setTimeout(() => inputElement.classList.remove('flash-correct'), 600);
             } else if (distance === 2) {
-                score = 2;
-                if (inputElement) {
-                    inputElement.classList.add('flash-partial');
-                    setTimeout(() => inputElement.classList.remove('flash-partial'), 600);
-                }
+                score = 2; 
+                wordInputs[word.id] = rawTyped;
+                inputElement.classList.add('flash-partial');
+                setTimeout(() => inputElement.classList.remove('flash-partial'), 600);
             } else {
-                score = 0;
-                if (inputElement) {
-                    inputElement.classList.add('flash-wrong');
-                    setTimeout(() => inputElement.classList.remove('flash-wrong'), 600);
-                }
+                score = 0; 
+                const revealedAnswerText = `${rawTyped} -> ${correctAnswer}`;
+                wordInputs[word.id] = revealedAnswerText;
+                inputElement.classList.add('flash-wrong');
+                setTimeout(() => inputElement.classList.remove('flash-wrong'), 600);
             }
 
-            if (!wordScores[word.id]) wordScores[word.id] = [];
-            wordScores[word.id].push(score);
+            currentRoundScores[word.id] = score;
 
             render();
+
+            // Nhảy đến ô chưa bị khóa tiếp theo
+            let nextIdx = index + 1;
+            while (nextIdx < activeWords.length) {
+                const nextWord = activeWords[nextIdx];
+                if (!masteredWordIds.has(nextWord.id)) {
+                    const nextInput = document.querySelector(`input[data-index="${nextIdx}"]`);
+                    if (nextInput) { nextInput.focus(); break; }
+                }
+                nextIdx++;
+            }
         }
 
+        // Bỏ qua kiểm tra ô trống đối với các từ đã được tích checkbox
         function validateAllInputsFilled() {
             if (currentPhase === 'context') return true;
             for (let word of activeWords) {
+                if (masteredWordIds.has(word.id)) continue; 
                 const val = wordInputs[word.id];
                 if (!val || val.trim().length === 0) return false;
             }
@@ -695,20 +704,31 @@
 
         function shuffleWords() {
             if (currentPhase === 'main' && !validateAllInputsFilled()) {
-                alert("⚠️ Chỉ khi mọi ô đã được điền ít nhất 1 chữ thì mới được nhấn Xáo Trộn hoặc Nộp Bài!");
+                alert("⚠️ Chỉ khi mọi ô (chưa tích) đã được điền ít nhất 1 chữ thì mới được nhấn Xáo Trộn hoặc Nộp Bài!");
                 return;
             }
 
             if (currentPhase === 'main') {
                 activeWords.forEach(word => {
-                    const text = wordInputs[word.id] || '';
-                    if (text.trim() !== '') {
-                        const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
-                        const dist = getLevenshteinDistance(text, correctAnswer);
-                        let score = dist <= 1 ? 3 : (dist === 2 ? 2 : 0);
-                        wordScores[word.id].push(score);
+                    if (!masteredWordIds.has(word.id)) {
+                        let score = currentRoundScores[word.id];
+                        if (score === undefined) {
+                            const text = wordInputs[word.id] || '';
+                            let rawTyped = text;
+                            if (rawTyped.includes('->')) {
+                                rawTyped = rawTyped.split('->')[0].trim();
+                            }
+                            const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
+                            const dist = getLevenshteinDistance(rawTyped, correctAnswer);
+                            score = dist <= 1 ? 3 : (dist === 2 ? 2 : 0);
+                        }
+                        if (!wordScoreHistory[word.id]) wordScoreHistory[word.id] = [];
+                        wordScoreHistory[word.id].push(score);
                     }
                 });
+
+                completedRounds++;
+                currentRoundScores = {}; 
             }
 
             for (let i = activeWords.length - 1; i > 0; i--) {
@@ -722,54 +742,43 @@
         }
 
         function submitAndFinish() {
-    if (!validateAllInputsFilled()) {
-        alert("⚠️ Chỉ khi mọi ô đã được điền ít nhất 1 chữ thì mới được nhấn Nộp Bài!");
-        return;
-    }
+            if (!validateAllInputsFilled()) {
+                alert("⚠️ Chỉ khi mọi ô (chưa tích) đã được điền ít nhất 1 chữ thì mới được nhấn Nộp Bài!");
+                return;
+            }
 
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
 
-    originalWords.forEach(word => {
-        const scoreObj = getAverageScore(word.id);
-        const finalScore = scoreObj.avg;
+            originalWords.forEach(word => {
+                const finalScore = getAverageScore(word.id);
+                word.timesLearned = (word.timesLearned || 1) + 1;
 
-        word.timesLearned = (word.timesLearned || 1) + 1;
+                let currentInterval = word.interval || 1;
+                let newInterval = 1;
 
-        // Lấy khoảng cách cũ của từ (mặc định lần đầu là 1 ngày)
-        let currentInterval = word.interval || 1;
-        let newInterval = 1;
+                if (finalScore === 3) {
+                    newInterval = currentInterval === 1 ? 4 : Math.round(currentInterval * 2.3);
+                } else if (finalScore === 2) {
+                    newInterval = currentInterval === 1 ? 2 : Math.round(currentInterval * 1.3);
+                } else {
+                    newInterval = 1; 
+                }
 
-        // THUẬT TOÁN TRỌNG SỐ TÍNH KHOẢNG CÁCH ACTIVE RECALL (SPACED REPETITION)
-        if (finalScore === 3) {
-            // Đạt điểm tối đa: Nhân khoảng cách cũ với trọng số 2.3 (Lần đầu mở rộng lên 4 ngày)
-            newInterval = currentInterval === 1 ? 4 : Math.round(currentInterval * 2.3);
-        } else if (finalScore === 2) {
-            // Đạt điểm khá: Tăng nhẹ khoảng cách (trọng số 1.3)
-            newInterval = currentInterval === 1 ? 2 : Math.round(currentInterval * 1.3);
-        } else {
-            // Điểm kém (0 hoặc 1đ): Quên từ -> Reset khoảng cách về lại 1 ngày để học lại ngay hôm sau
-            newInterval = 1;
+                word.interval = newInterval;
+                const nextDate = new Date();
+                nextDate.setDate(nextDate.getDate() + newInterval);
+                word.nextReviewDate = nextDate.toISOString().split('T')[0];
+
+                store.put(word);
+            });
+
+            tx.oncomplete = () => {
+                alert("🎉 Đã hoàn thành ca học! Kết quả đã được ghi nhận vào hệ thống.");
+                window.location.href = 'vocab.html';
+            };
         }
 
-        // Cập nhật lại biến interval cho từ vựng
-        word.interval = newInterval;
-
-        // Tính ngày ôn tập tiếp theo dựa trên newInterval đã được nhân trọng số
-        const nextDate = new Date();
-        nextDate.setDate(nextDate.getDate() + newInterval);
-        word.nextReviewDate = nextDate.toISOString().split('T')[0];
-
-        store.put(word);
-    });
-
-    tx.oncomplete = () => {
-        alert("🎉 Đã hoàn thành ca học! Thuật toán Spaced Repetition đã cập nhật khoảng cách dãn dòng chuẩn xác.");
-        window.location.href = 'vocab.html';
-    };
-}
-
-        // SỰ KIỆN GIAO DIỆN
         document.getElementById('phaseActionButton').addEventListener('click', () => {
             if (currentPhase === 'context') {
                 currentPhase = 'main';
@@ -799,6 +808,7 @@
 
         document.getElementById('showAllBtn').addEventListener('click', () => {
             masteredWordIds.clear();
+            frozenAvgScores = {};
             render();
         });
 
@@ -806,7 +816,6 @@
             window.location.href = 'vocab.html';
         });
 
-        // Modal Prompt AI
         const promptModal = document.getElementById('aiPromptModal');
         document.getElementById('promptAiBtn').addEventListener('click', () => {
             const samplePrompt = `Hãy đóng vai giáo viên tiếng Anh. Hãy cho tôi 10 từ vựng ngẫu nhiên trình độ B1/B2.
@@ -835,7 +844,6 @@ Trả về JSON thuần mảng:
             alert("Đã sao chép Prompt vào bộ nhớ tạm!");
         });
 
-        // KHỞI CHẠY HỆ THỐNG
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 await initDB();
