@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiểm Tra Từ Vựng - Khóa Ô Nhập Đã Tích</title>
+    <title>Kiểm Tra Từ Vựng - Fix Lỗi Tính Điểm</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -318,7 +318,7 @@
             <button class="btn-quiz btn-next-phase" id="phaseActionButton">nộp bài</button>
         </div>
 
-        <!-- Banner thông báo giai đoạn -->
+        <!-- Banner thông báo -->
         <div class="phase-banner" id="phaseBanner">
             Lượt 2: sau khi điền hết hãy ấn xáo trộn để kiểm tra lại lần 2, nếu đã hoàn thành ca học, nhấn nộp bài
         </div>
@@ -477,18 +477,25 @@
             return matrix[b.length][a.length];
         }
 
+        // ĐÃ SỬA LỖI: Lập tức cộng điểm vòng hiện tại vào điểm trung bình ngay khi gõ Enter!
         function getAverageScore(wordId) {
             if (frozenAvgScores[wordId] !== undefined) {
                 return frozenAvgScores[wordId];
             }
 
             const history = wordScoreHistory[wordId] || [];
-            if (history.length === 0) {
-                return currentRoundScores[wordId] !== undefined ? currentRoundScores[wordId] : 0;
+            const currentScore = currentRoundScores[wordId];
+
+            // Gộp tất cả các điểm cũ + điểm lượt hiện tại (nếu có)
+            const allScores = [...history];
+            if (currentScore !== undefined) {
+                allScores.push(currentScore);
             }
 
-            const sum = history.reduce((a, b) => a + b, 0);
-            return Math.ceil(sum / history.length);
+            if (allScores.length === 0) return 0;
+
+            const sum = allScores.reduce((a, b) => a + b, 0);
+            return Math.ceil(sum / allScores.length);
         }
 
         function render() {
@@ -536,7 +543,6 @@
                 checkbox.className = 'word-checkbox';
                 checkbox.checked = isMastered;
 
-                // Khi tích chọn: Đóng băng điểm trung bình & Khóa ô nhập liệu
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         masteredWordIds.add(word.id);
@@ -604,7 +610,6 @@
                     inputAnswer.dataset.index = index;
                     inputAnswer.value = showAnswersAll ? correctAnswer : (wordInputs[word.id] || '');
 
-                    // KHÓA Ô NHẬP NẾU TỪ ĐÃ ĐƯỢC TÍCH CHECKBOX
                     if (isMastered) {
                         inputAnswer.disabled = true;
                     }
@@ -679,7 +684,6 @@
 
             render();
 
-            // Nhảy đến ô chưa bị khóa tiếp theo
             let nextIdx = index + 1;
             while (nextIdx < activeWords.length) {
                 const nextWord = activeWords[nextIdx];
@@ -691,7 +695,6 @@
             }
         }
 
-        // Bỏ qua kiểm tra ô trống đối với các từ đã được tích checkbox
         function validateAllInputsFilled() {
             if (currentPhase === 'context') return true;
             for (let word of activeWords) {
