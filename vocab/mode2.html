@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiểm Tra Miệng</title>
+    <title>Kiểm Tra Từ Vựng - Nâng Cấp Lần 2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     
     <style>
+        * { box-sizing: border-box; }
         body {
-            background-color: #a8ebd0 !important; 
+            background-color: #0b422a !important; 
             margin: 0;
             padding: 0;
             display: flex;
@@ -18,29 +19,29 @@
             align-items: center;
             min-height: 100vh;
             font-family: 'Patrick Hand', cursive, sans-serif;
+            color: #f0fdf4;
         }
 
-        /* Khung chính mở rộng gần như Full Màn Hình */
         .sketch-container {
             position: relative;
             width: 96% !important;
             max-width: 1400px !important;
-            height: 92vh;
-            background-color: #a8ebd0 !important;
-            border: 3px double #C93638;
-            box-shadow: none;
+            height: 94vh;
+            background-color: #0d5234 !important;
+            border: 4px solid #3d2216;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             padding: 0 !important;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border-radius: 12px;
+            border-radius: 16px;
         }
 
-        /* Header linh hoạt chứa các nút và nút Nộp bài ở góc phải */
+        /* Header Bar */
         .sticky-header {
-            background-color: #fef08a;
-            border-bottom: 2px solid #C93638;
-            padding: 12px 25px;
+            background-color: #5c2f17;
+            border-bottom: 3px solid #3d2216;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -49,165 +50,15 @@
 
         .header-buttons-left {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
-        }
-
-        .scrollable-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 40px 40px 40px;
-        }
-
-        .scrollable-content::-webkit-scrollbar { width: 10px; }
-        .scrollable-content::-webkit-scrollbar-track { background: #a8ebd0; }
-        .scrollable-content::-webkit-scrollbar-thumb {
-            background: #90cdf4;
-            border: 2px solid #C93638;
-            border-radius: 6px;
-        }
-
-        .instruction-text {
-            font-size: 1.6rem;
-            color: #d97706;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
-        .note-text {
-            font-size: 1.2rem;
-            color: #d97706;
-            text-align: center;
-            margin-bottom: 20px;
-            font-style: italic;
-        }
-
-        .word-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .word-row {
-            display: flex;
             align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .word-index {
-            font-size: 2.2rem;
-            color: #2d3748;
-            width: 35px;
-            text-align: right;
-        }
-
-        .word-card-question {
-            flex: 1;
-            background-color: #ffb3b3;
-            border: 2px solid #C93638;
-            border-radius: 12px;
-            padding: 10px 15px;
-            font-size: 1.5rem;
-            color: #000;
-            text-align: center;
-            min-height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .word-card-answer {
-            flex: 1;
-            background-color: #fef08a;
-            border: 2px solid #C93638;
-            border-radius: 12px;
-            padding: 10px 15px;
-            font-size: 1.5rem;
-            color: #000;
-            text-align: center;
-            min-height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Checkbox ẩn từ khi đã thuộc */
-        .word-checkbox-container {
-            display: flex;
-            align-items: center;
-        }
-        .word-checkbox {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 32px;
-            height: 32px;
-            border: 2px solid #C93638;
-            border-radius: 8px;
-            background-color: #fff;
-            cursor: pointer;
-            position: relative;
-        }
-        .word-checkbox:checked::after {
-            content: '✓';
-            font-size: 1.8rem;
-            color: #d97706;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -55%);
-            font-weight: bold;
-        }
-
-        /* Nút lật xem đáp án riêng cho từng từ */
-        .btn-reveal-single {
-            width: 36px;
-            height: 36px;
-            background-color: #a8ebd0;
-            border: 2px solid #C93638;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: transform 0.1s;
-        }
-        .btn-reveal-single:active { transform: scale(0.95); }
-
-        /* Trạng thái khi từ bị ẩn */
-        .word-row.hidden-word .word-card-question,
-        .word-row.hidden-word .word-card-answer {
-            color: transparent !important;
-            text-shadow: none !important;
-        }
-
-        /* Định dạng chung nút bấm */
-        .btn-quiz {
-            background-color: #90cdf4 !important;
-            font-size: 1.3rem;
-            padding: 8px 16px;
-            border: 2px solid #C93638;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Patrick Hand', cursive, sans-serif;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
-        }
-        .btn-submit {
-            background-color: #ffb3b3 !important;
-            font-weight: bold;
         }
 
         .btn-back {
-            position: absolute;
-            top: 12px;
-            left: 15px;
-            z-index: 11;
-            background: #ffb3b3;
-            border: 2px solid #C93638;
+            background: #e11d48;
+            color: #fff;
+            border: 2px solid #881337;
             border-radius: 50%;
             width: 38px;
             height: 38px;
@@ -216,143 +67,784 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+        .btn-back:active { transform: scale(0.92); }
+
+        .btn-quiz {
+            background-color: #1d4ed8 !important;
+            color: #ffffff;
+            font-size: 1.2rem;
+            padding: 6px 14px;
+            border: 2px solid #1e3a8a;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            transition: all 0.1s ease;
+        }
+        .btn-quiz:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-quiz:active { transform: translateY(1px); }
+
+        .btn-next-phase {
+            background-color: #fecdd3 !important;
+            color: #9f1239 !important;
+            border: 2px solid #e11d48 !important;
+            font-weight: bold;
+            font-size: 1.3rem;
+            padding: 6px 20px;
+            border-radius: 20px;
         }
 
-        /* --- POPUP MODAL NỘP BÀI --- */
+        /* Phase Indicator Banner */
+        .phase-banner {
+            background-color: #a7f3d0;
+            color: #065f46;
+            border: 2px solid #059669;
+            border-radius: 25px;
+            text-align: center;
+            padding: 10px 20px;
+            margin: 15px auto 10px auto;
+            width: 85%;
+            max-width: 950px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 30px 30px 30px;
+        }
+
+        .scrollable-content::-webkit-scrollbar { width: 10px; }
+        .scrollable-content::-webkit-scrollbar-track { background: #0d5234; }
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border: 2px solid #065f46;
+            border-radius: 6px;
+        }
+
+        .word-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        .word-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .word-index {
+            font-size: 2rem;
+            color: #f0fdf4;
+            width: 35px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .word-card-question {
+            flex: 1;
+            background-color: #580000;
+            border: 2px solid #990000;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 1.4rem;
+            color: #ffdddd;
+            text-align: center;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .word-checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+        .word-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #000;
+            border-radius: 6px;
+            background-color: #111;
+            cursor: pointer;
+            position: relative;
+        }
+        .word-checkbox:checked::after {
+            content: '✓';
+            font-size: 1.6rem;
+            color: #22c55e;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            font-weight: bold;
+        }
+
+        /* Context Container (Thẻ Ngữ Cảnh Nâu) */
+        .context-display-box {
+            flex: 2.2;
+            background-color: #4a1d00;
+            border: 2px solid #7c2d12;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 1.25rem;
+            color: #fde047;
+            min-height: 52px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .context-example-item {
+            color: #fef08a;
+            font-size: 1.2rem;
+            line-height: 1.35;
+        }
+
+        .context-hidden {
+            text-align: center;
+            letter-spacing: 1px;
+            color: #d97706;
+            font-style: italic;
+        }
+
+        /* Input Box */
+        .word-input-box {
+            flex: 2.2;
+            background-color: #4a1d00;
+            border: 2px solid #7c2d12;
+            border-radius: 10px;
+            padding: 8px 15px;
+            font-size: 1.3rem;
+            color: #fde047;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            outline: none;
+            min-height: 52px;
+            transition: all 0.2s;
+        }
+        .word-input-box:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+            background-color: #5c2400;
+        }
+        .word-input-box::placeholder {
+            color: #d97706;
+            font-style: italic;
+            opacity: 0.85;
+            font-size: 1.15rem;
+        }
+
+        /* Score Badge */
+        .score-badge {
+            min-width: 55px;
+            background: #331800;
+            border: 2px solid #7c2d12;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 1.25rem;
+            color: #fde047;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        /* Visual Feedback Flash */
+        .flash-correct { animation: flashGreen 0.6s ease; }
+        .flash-partial { animation: flashYellow 0.6s ease; }
+        .flash-wrong { animation: flashRed 0.6s ease; }
+
+        @keyframes flashGreen { 0% { background-color: #15803d; } 100% { background-color: #4a1d00; } }
+        @keyframes flashYellow { 0% { background-color: #a16207; } 100% { background-color: #4a1d00; } }
+        @keyframes flashRed { 0% { background-color: #b91c1c; } 100% { background-color: #4a1d00; } }
+
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.7);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 100;
         }
         .modal-overlay.active { display: flex; }
-
         .modal-card {
-            background: #a8ebd0;
-            border: 3px solid #C93638;
+            background: #0d5234;
+            border: 3px solid #fde047;
             border-radius: 16px;
-            padding: 25px 35px;
+            padding: 25px 30px;
             width: 90%;
-            max-width: 650px;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
-        }
-
-        .modal-title {
-            color: #C93638;
-            font-size: 1.8rem;
-            text-align: center;
-            margin: 0 0 15px 0;
-        }
-
-        .rating-list {
-            overflow-y: auto;
-            flex: 1;
-            padding-right: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .rating-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .rating-word-box {
-            flex: 1;
-            background: #fff;
-            border: 2px solid #C93638;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 1.3rem;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .rating-options {
-            display: flex;
-            gap: 10px;
-        }
-
-        .rating-circle {
-            width: 32px;
-            height: 32px;
-            border: 2px solid #C93638;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            background: #fff;
-            user-select: none;
-        }
-
-        .rating-circle.selected {
-            background: #C93638;
+            max-width: 600px;
             color: #fff;
-            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 10px;
+        .modal-title {
+            color: #fde047;
+            font-size: 1.8rem;
+            margin-top: 0;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
     <div class="sketch-container">
-        <button class="btn-back" id="backBtn">←</button>
-
+        <!-- Header Controls -->
         <div class="sticky-header">
-            <div style="width: 40px;"></div> <!-- Spacer căn lề nút Back -->
+            <button class="btn-back" id="backBtn" title="Quay lại trang chủ">←</button>
             <div class="header-buttons-left">
-                <button class="btn btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
-                <button class="btn btn-quiz" id="shuffleBtn">xáo trộn</button>
-                <button class="btn btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
-                <button class="btn btn-quiz" id="showAllBtn">hiện tất cả</button>
+                <button class="btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
+                <button class="btn-quiz" id="shuffleBtn">xáo trộn</button>
+                <button class="btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
+                <button class="btn-quiz" id="showAllBtn">hiện tất cả</button>
+                <button class="btn-quiz" id="promptAiBtn" style="background-color: #9333ea !important; border-color: #6b21a8;">Prompt AI</button>
             </div>
-            <button class="btn btn-quiz btn-submit" id="submitBtn">nộp bài</button>
+            <button class="btn-quiz btn-next-phase" id="phaseActionButton">Lượt 2 -></button>
         </div>
 
+        <!-- Banner thông báo giai đoạn -->
+        <div class="phase-banner" id="phaseBanner">
+            Lượt 1: ngữ cảnh
+        </div>
+
+        <!-- Danh sách từ vựng -->
         <div class="scrollable-content">
-            <p class="instruction-text">
-                Hãy tích vào ô ở giữa để đánh dấu bạn đã nhớ từ đó ở phiên hiện tại
-            </p>
-            <p class="note-text">lưu ý : nhấn dấu cách để biết toàn bộ đáp án, dùng ô xanh mint góc phải để xem đáp án từng từ, tích chọn để ẩn từ đã thuộc</p>
-
             <div class="word-panel" id="wordListContainer">
-                <div style="text-align: center; font-size: 1.5rem;">Đang tải danh sách từ hôm nay...</div>
+                <div style="text-align: center; font-size: 1.6rem; color: #fde047; margin-top: 40px;">
+                    Đang tải danh sách từ vựng...
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- POPUP NỘP BÀI ĐÁNH GIÁ MỨC ĐỘ THUỘC -->
-    <div class="modal-overlay" id="ratingModal">
+    <!-- MODAL PROMPT AI GENERATOR -->
+    <div class="modal-overlay" id="aiPromptModal">
         <div class="modal-card">
-            <h3 class="modal-title">đánh giá mức độ thuộc của các từ bạn học hôm nay</h3>
-            <div class="rating-list" id="ratingList">
-                <!-- Các hàng đánh giá sẽ tự động render tại đây -->
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-quiz" id="modalBackBtn" style="background:#ffb3b3 !important;">Back</button>
-                <button class="btn btn-quiz" id="modalOkBtn" style="background:#fef08a !important;">OK</button>
+            <h3 class="modal-title">🤖 Tạo Prompt Cho AI (ChatGPT / Claude)</h3>
+            <p style="font-size: 1.2rem; color: #a7f3d0;">Sao chép Prompt bên dưới, dán vào AI của bạn để tạo dữ liệu từ mới theo đúng định dạng chuẩn:</p>
+            <textarea id="aiPromptText" style="width: 100%; height: 180px; background: #042f2e; color: #fde047; border: 2px solid #14b8a6; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.95rem; resize: none;" readonly></textarea>
+            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                <button class="btn-quiz" id="closePromptModalBtn" style="background:#ef4444 !important; border-color:#b91c1c;">Đóng</button>
+                <button class="btn-quiz" id="copyPromptBtn" style="background:#22c55e !important; border-color:#15803d;">Copy Prompt</button>
             </div>
         </div>
     </div>
 
-    <script src="mode2.js"></script>
+    <script>
+        const DB_NAME = 'VocabDB';
+        const DB_VERSION = 3;
+        const STORE_NAME = 'words';
+
+        let db;
+        let originalWords = [];    // Lưu danh sách 20 từ ban đầu
+        let activeWords = [];      // Danh sách từ đang làm việc
+        let currentPhase = 'context'; // 'context' (Lượt 1) hoặc 'main' (Lượt 2)
+        let currentDisplayMode = 'en'; // 'en' hoặc 'vi'
+        let showAnswersAll = false;
+        let masteredWordIds = new Set();
+        let revealedWordIds = new Set(); // Bộ nhớ bật/tắt xem đáp án riêng từng từ
+        let wordInputs = {};       // Ô điền đáp án Lượt 2
+        let sentenceInputs = {};   // Ô điền 2 câu mẫu thực hành Lượt 1
+        let wordScores = {};       // Lịch sử điểm: { id: [3, 2, 3] }
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        const store = database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('english', 'english', { unique: true });
+                        store.createIndex('nextReviewDate', 'nextReviewDate', { unique: false });
+                    }
+                };
+            });
+        }
+
+        function getTodayString() {
+            const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000); 
+            return localDate.toISOString().split('T')[0]; 
+        }
+
+        // Tải dữ liệu & Giới hạn tối đa 20 từ/ngày, đẩy từ dư thừa sang ngày tiếp theo
+        function loadAndBalanceWords() {
+            return new Promise((resolve, reject) => {
+                const todayStr = getTodayString();
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    const allWords = request.result || [];
+
+                    if (allWords.length < 30) {
+                        alert(`⚠️ CẢNH BÁO: Kho từ vựng hiện có ${allWords.length} từ (< 30 từ).\nVui lòng nạp thêm từ mới trước khi học!`);
+                    }
+
+                    let dueWords = allWords.filter(word => {
+                        if (!word.nextReviewDate) word.nextReviewDate = todayStr;
+                        return word.nextReviewDate <= todayStr;
+                    });
+
+                    // CHỈ HỌC TỐI ĐA 20 TỪ 1 NGÀY
+                    if (dueWords.length > 20) {
+                        const todayList = dueWords.slice(0, 20);
+                        const excessList = dueWords.slice(20);
+
+                        excessList.forEach(word => {
+                            let placed = false;
+                            let offsetDays = 1;
+
+                            while (!placed) {
+                                const checkDate = new Date();
+                                checkDate.setDate(checkDate.getDate() + offsetDays);
+                                const checkDateStr = checkDate.toISOString().split('T')[0];
+
+                                const countOnDate = allWords.filter(w => w.nextReviewDate === checkDateStr).length;
+                                if (countOnDate < 20) {
+                                    word.nextReviewDate = checkDateStr;
+                                    store.put(word);
+                                    placed = true;
+                                } else {
+                                    offsetDays++;
+                                }
+                            }
+                        });
+
+                        dueWords = todayList;
+                    }
+
+                    const twoWeeksFromNow = new Date();
+                    twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
+                    const twoWeeksStr = twoWeeksFromNow.toISOString().split('T')[0];
+
+                    originalWords = dueWords.filter(w => w.nextReviewDate <= twoWeeksStr);
+                    originalWords.forEach(w => {
+                        if (!w.timesLearned) w.timesLearned = 1;
+                        wordScores[w.id] = [];
+                    });
+
+                    activeWords = JSON.parse(JSON.stringify(originalWords));
+                    resolve();
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function getLevenshteinDistance(a, b) {
+            a = a.toLowerCase().trim();
+            b = b.toLowerCase().trim();
+            const matrix = [];
+
+            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        function getAverageScore(wordId) {
+            const scores = wordScores[wordId];
+            if (!scores || scores.length === 0) {
+                return { avg: 1, count: 0 };
+            }
+            const sum = scores.reduce((a, b) => a + b, 0);
+            const avg = Math.ceil(sum / scores.length);
+            return { avg, count: scores.length };
+        }
+
+        // RENDER GIAO DIỆN
+        function render() {
+            const container = document.getElementById('wordListContainer');
+            container.innerHTML = '';
+
+            if (activeWords.length === 0) {
+                container.innerHTML = `<div style="text-align:center; font-size:1.6rem; color:#fde047; margin-top:30px;">
+                    Không có từ vựng nào cần học hôm nay!
+                </div>`;
+                return;
+            }
+
+            const banner = document.getElementById('phaseBanner');
+            const phaseBtn = document.getElementById('phaseActionButton');
+
+            if (currentPhase === 'context') {
+                banner.textContent = 'Lượt 1: ngữ cảnh';
+                phaseBtn.textContent = 'Lượt 2 ->';
+            } else {
+                banner.textContent = 'Lượt 2: sau khi điền hết hãy ấn xáo trộn để kiểm tra lại lần 2, nếu đã hoàn thành ca học, nhấn nộp bài';
+                phaseBtn.textContent = 'nộp bài';
+            }
+
+            activeWords.forEach((word, index) => {
+                const wordRow = document.createElement('div');
+                wordRow.className = 'word-row';
+
+                const isMastered = masteredWordIds.has(word.id);
+                const questionText = currentDisplayMode === 'en' ? word.vietnamese : word.english;
+                const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
+
+                // STT
+                const indexDiv = document.createElement('div');
+                indexDiv.className = 'word-index';
+                indexDiv.textContent = index + 1;
+
+                // Thẻ hỏi
+                const questionCard = document.createElement('div');
+                questionCard.className = 'word-card-question';
+                questionCard.textContent = isMastered ? '— — —' : questionText;
+
+                // Checkbox ẩn từ
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'word-checkbox-container';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'word-checkbox';
+                checkbox.checked = isMastered;
+                checkbox.addEventListener('change', () => {
+                    if (masteredWordIds.has(word.id)) masteredWordIds.delete(word.id);
+                    else masteredWordIds.add(word.id);
+                    render();
+                });
+                checkboxContainer.appendChild(checkbox);
+
+                wordRow.appendChild(indexDiv);
+                wordRow.appendChild(questionCard);
+                wordRow.appendChild(checkboxContainer);
+
+                // CHẾ ĐỘ NGỮ CẢNH (LƯỢT 1)
+                if (currentPhase === 'context') {
+                    const isNewWord = (word.timesLearned <= 2);
+
+                    const contextBox = document.createElement('div');
+                    contextBox.className = 'context-display-box';
+
+                    const ex1 = word.example1 || `(1. Ví dụ mẫu cho: ${word.english})`;
+                    const ex2 = word.example2 || `(2. Ví dụ mẫu cho: ${word.english})`;
+
+                    if (isNewWord) {
+                        contextBox.innerHTML = `
+                            <div class="context-example-item">1. ${ex1}</div>
+                            <div class="context-example-item">2. ${ex2}</div>
+                        `;
+                    } else {
+                        let isRevealed = word._showContext || false;
+                        if (isRevealed) {
+                            contextBox.innerHTML = `
+                                <div class="context-example-item">1. ${ex1}</div>
+                                <div class="context-example-item">2. ${ex2}</div>
+                            `;
+                        } else {
+                            contextBox.innerHTML = `<div class="context-hidden">các từ đã cũ sẽ bị ẩn như này (trừ khi ấn vào)</div>`;
+                        }
+
+                        contextBox.addEventListener('click', () => {
+                            word._showContext = !word._showContext;
+                            render();
+                        });
+                    }
+
+                    const practiceInput = document.createElement('input');
+                    practiceInput.type = 'text';
+                    practiceInput.className = 'word-input-box';
+                    practiceInput.placeholder = 'đây là ô điền người dùng sẽ điền 2 câu mẫu sử dụng từ mới';
+                    practiceInput.value = sentenceInputs[word.id] || '';
+                    practiceInput.addEventListener('input', (e) => {
+                        sentenceInputs[word.id] = e.target.value;
+                    });
+
+                    wordRow.appendChild(contextBox);
+                    wordRow.appendChild(practiceInput);
+                } 
+                // CHẾ ĐỘ KIỂM TRA CHÍNH (LƯỢT 2)
+                else {
+                    const isRevealed = revealedWordIds.has(word.id);
+
+                    const inputAnswer = document.createElement('input');
+                    inputAnswer.type = 'text';
+                    inputAnswer.className = 'word-input-box';
+                    inputAnswer.dataset.index = index;
+                    inputAnswer.value = (showAnswersAll || isRevealed) ? correctAnswer : (wordInputs[word.id] || '');
+
+                    inputAnswer.addEventListener('keydown', (e) => {
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            const nextInput = document.querySelector(`input[data-index="${index + 1}"]`);
+                            if (nextInput) nextInput.focus();
+                        } else if (e.key === 'Enter') {
+                            e.preventDefault();
+                            gradeSingleWord(word, inputAnswer.value, inputAnswer);
+                            const nextInput = document.querySelector(`input[data-index="${index + 1}"]`);
+                            if (nextInput) nextInput.focus();
+                        }
+                    });
+
+                    inputAnswer.addEventListener('input', (e) => {
+                        wordInputs[word.id] = e.target.value;
+                    });
+
+                    // Nút 🔒 / 👁️ BẤM XEM ĐÁP ÁN RIÊNG TỪNG TỪ
+                    const btnReveal = document.createElement('button');
+                    btnReveal.className = 'btn-quiz';
+                    btnReveal.style.padding = '4px 10px';
+                    btnReveal.style.fontSize = '1.3rem';
+                    btnReveal.style.backgroundColor = isRevealed ? '#a7f3d0' : '#331800';
+                    btnReveal.style.borderColor = '#7c2d12';
+                    btnReveal.innerHTML = isRevealed ? '👁️' : '🔒';
+                    btnReveal.title = 'Bấm để xem/ẩn đáp án từ này';
+
+                    btnReveal.addEventListener('click', () => {
+                        if (revealedWordIds.has(word.id)) {
+                            revealedWordIds.delete(word.id);
+                        } else {
+                            revealedWordIds.add(word.id);
+                        }
+                        render();
+                    });
+
+                    // THẺ ĐIỂM SỐ TRUNG BÌNH (Ví dụ: 3/1)
+                    const scoreObj = getAverageScore(word.id);
+                    const scoreBadge = document.createElement('div');
+                    scoreBadge.className = 'score-badge';
+                    scoreBadge.innerHTML = `${scoreObj.avg}/${scoreObj.count}`;
+
+                    wordRow.appendChild(inputAnswer);
+                    wordRow.appendChild(btnReveal);
+                    wordRow.appendChild(scoreBadge);
+                }
+
+                container.appendChild(wordRow);
+            });
+        }
+
+        // Chấm điểm ngay lập tức cho 1 từ vừa điền (Enter)
+        function gradeSingleWord(word, userText, inputElement) {
+            if (!userText || userText.trim() === '') return;
+
+            const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
+            const distance = getLevenshteinDistance(userText, correctAnswer);
+
+            let score = 0;
+            if (distance <= 1) {
+                score = 3;
+                if (inputElement) {
+                    inputElement.classList.add('flash-correct');
+                    setTimeout(() => inputElement.classList.remove('flash-correct'), 600);
+                }
+            } else if (distance === 2) {
+                score = 2;
+                if (inputElement) {
+                    inputElement.classList.add('flash-partial');
+                    setTimeout(() => inputElement.classList.remove('flash-partial'), 600);
+                }
+            } else {
+                score = 0;
+                if (inputElement) {
+                    inputElement.classList.add('flash-wrong');
+                    setTimeout(() => inputElement.classList.remove('flash-wrong'), 600);
+                }
+            }
+
+            if (!wordScores[word.id]) wordScores[word.id] = [];
+            wordScores[word.id].push(score);
+
+            render();
+        }
+
+        function validateAllInputsFilled() {
+            if (currentPhase === 'context') return true;
+            for (let word of activeWords) {
+                const val = wordInputs[word.id];
+                if (!val || val.trim().length === 0) return false;
+            }
+            return true;
+        }
+
+        function shuffleWords() {
+            if (currentPhase === 'main' && !validateAllInputsFilled()) {
+                alert("⚠️ Chỉ khi mọi ô đã được điền ít nhất 1 chữ thì mới được nhấn Xáo Trộn hoặc Nộp Bài!");
+                return;
+            }
+
+            if (currentPhase === 'main') {
+                activeWords.forEach(word => {
+                    const text = wordInputs[word.id] || '';
+                    if (text.trim() !== '') {
+                        const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
+                        const dist = getLevenshteinDistance(text, correctAnswer);
+                        let score = dist <= 1 ? 3 : (dist === 2 ? 2 : 0);
+                        wordScores[word.id].push(score);
+                    }
+                });
+            }
+
+            for (let i = activeWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeWords[i], activeWords[j]] = [activeWords[j], activeWords[i]];
+            }
+
+            wordInputs = {};
+            showAnswersAll = false;
+            render();
+        }
+
+        function submitAndFinish() {
+    if (!validateAllInputsFilled()) {
+        alert("⚠️ Chỉ khi mọi ô đã được điền ít nhất 1 chữ thì mới được nhấn Nộp Bài!");
+        return;
+    }
+
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+
+    originalWords.forEach(word => {
+        const scoreObj = getAverageScore(word.id);
+        const finalScore = scoreObj.avg;
+
+        word.timesLearned = (word.timesLearned || 1) + 1;
+
+        // Lấy khoảng cách cũ của từ (mặc định lần đầu là 1 ngày)
+        let currentInterval = word.interval || 1;
+        let newInterval = 1;
+
+        // THUẬT TOÁN TRỌNG SỐ TÍNH KHOẢNG CÁCH ACTIVE RECALL (SPACED REPETITION)
+        if (finalScore === 3) {
+            // Đạt điểm tối đa: Nhân khoảng cách cũ với trọng số 2.3 (Lần đầu mở rộng lên 4 ngày)
+            newInterval = currentInterval === 1 ? 4 : Math.round(currentInterval * 2.3);
+        } else if (finalScore === 2) {
+            // Đạt điểm khá: Tăng nhẹ khoảng cách (trọng số 1.3)
+            newInterval = currentInterval === 1 ? 2 : Math.round(currentInterval * 1.3);
+        } else {
+            // Điểm kém (0 hoặc 1đ): Quên từ -> Reset khoảng cách về lại 1 ngày để học lại ngay hôm sau
+            newInterval = 1;
+        }
+
+        // Cập nhật lại biến interval cho từ vựng
+        word.interval = newInterval;
+
+        // Tính ngày ôn tập tiếp theo dựa trên newInterval đã được nhân trọng số
+        const nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + newInterval);
+        word.nextReviewDate = nextDate.toISOString().split('T')[0];
+
+        store.put(word);
+    });
+
+    tx.oncomplete = () => {
+        alert("🎉 Đã hoàn thành ca học! Thuật toán Spaced Repetition đã cập nhật khoảng cách dãn dòng chuẩn xác.");
+        window.location.href = 'vocab.html';
+    };
+}
+
+        // SỰ KIỆN GIAO DIỆN
+        document.getElementById('phaseActionButton').addEventListener('click', () => {
+            if (currentPhase === 'context') {
+                currentPhase = 'main';
+                render();
+            } else {
+                submitAndFinish();
+            }
+        });
+
+        document.getElementById('shuffleBtn').addEventListener('click', shuffleWords);
+
+        document.getElementById('toggleModeBtn').addEventListener('click', (e) => {
+            if (currentDisplayMode === 'en') {
+                currentDisplayMode = 'vi';
+                e.target.textContent = "trả lời tiếng việt";
+            } else {
+                currentDisplayMode = 'en';
+                e.target.textContent = "trả lời tiếng anh";
+            }
+            render();
+        });
+
+        document.getElementById('toggleAnswersBtn').addEventListener('click', () => {
+            showAnswersAll = !showAnswersAll;
+            render();
+        });
+
+        document.getElementById('showAllBtn').addEventListener('click', () => {
+            masteredWordIds.clear();
+            render();
+        });
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'vocab.html';
+        });
+
+        // Modal Prompt AI
+        const promptModal = document.getElementById('aiPromptModal');
+        document.getElementById('promptAiBtn').addEventListener('click', () => {
+            const samplePrompt = `Hãy đóng vai giáo viên tiếng Anh. Hãy cho tôi 10 từ vựng ngẫu nhiên trình độ B1/B2.
+Mỗi từ gồm: "english", "vietnamese", "example1", "example2" (từ mới được bọc ngoặc đơn trong ví dụ).
+Trả về JSON thuần mảng:
+[
+  {
+    "english": "enhance",
+    "vietnamese": "nâng cao",
+    "example1": "You can (enhance) your skills by practicing daily.",
+    "example2": "The new feature will (enhance) user experience."
+  }
+]`;
+            document.getElementById('aiPromptText').value = samplePrompt;
+            promptModal.classList.add('active');
+        });
+
+        document.getElementById('closePromptModalBtn').addEventListener('click', () => {
+            promptModal.classList.remove('active');
+        });
+
+        document.getElementById('copyPromptBtn').addEventListener('click', () => {
+            const copyText = document.getElementById('aiPromptText');
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value);
+            alert("Đã sao chép Prompt vào bộ nhớ tạm!");
+        });
+
+        // KHỞI CHẠY HỆ THỐNG
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initDB();
+                await loadAndBalanceWords();
+                render();
+            } catch (err) {
+                console.error("Lỗi khởi chạy hệ thống:", err);
+            }
+        });
+    </script>
 </body>
 </html>

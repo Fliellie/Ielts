@@ -3,85 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ôn Tập Từ Mới</title>
+    <title>Ôn Tập Từ Mới - Trang Chủ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="vocab.css">
+    
     <style>
-        /* Tự động mở rộng max-width của container để chứa vừa 2 cột Trái - Phải */
-        .sketch-container {
-            max-width: 850px !important;
+        * { box-sizing: border-box; }
+        
+        body {
+            background-color: #0b422a !important; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            color: #f0fdf4;
         }
 
-        /* Bố cục chia đôi Trái - Phải vẽ tay đồng bộ phong cách */
+        /* Khung chính phong cách bảng đen viền đỏ */
+        .sketch-container {
+            position: relative;
+            width: 94%;
+            max-width: 900px !important;
+            min-height: 520px;
+            background-color: #000000 !important;
+            border: 3px solid #990000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+            padding: 25px 30px !important;
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+        }
+
+        /* Nút quay lại góc trên trái */
+        .btn-back {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #990000;
+            color: #ffffff;
+            border: 2px solid #550000;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: transform 0.1s;
+            z-index: 5;
+        }
+        .btn-back:active { transform: scale(0.92); }
+
+        /* Bố cục chia đôi Trái - Phải */
         .main-layout {
             display: flex;
-            gap: 40px;
-            align-items: flex-start;
+            gap: 30px;
+            align-items: stretch;
             justify-content: space-between;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 15px;
+            flex: 1;
         }
         
+        /* Panel Bên Trái */
         .left-panel {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
         }
-        
-        /* Bảng bên phải đồng bộ viền đỏ nét vẽ tay */
+
+        .title {
+            font-size: 2.2rem;
+            color: #ff3333;
+            margin-top: 0;
+            margin-bottom: 25px;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        /* Định dạng nút bấm sọc caro xanh lam đúng thiết kế */
+        .btn {
+            background: repeating-linear-gradient(
+                45deg,
+                #0284c7,
+                #0284c7 10px,
+                #0369a1 10px,
+                #0369a1 20px
+            );
+            color: #ffffff;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            font-size: 1.5rem;
+            padding: 10px 15px;
+            border: 2px solid #0c4a6e;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.15s ease;
+            text-align: center;
+            user-select: none;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            filter: brightness(1.1);
+        }
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Panel Bên Phải */
         .right-panel {
             flex: 1.2;
-            background: #ffffff;
-            border: 2px solid #C93638;
-            padding: 20px;
+            background: #000000;
+            border: 2px solid #990000;
+            padding: 15px;
             border-radius: 12px;
-            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
-            max-height: 450px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
         
         .panel-title {
-            font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
             font-size: 1.8rem;
-            color: #C93638;
+            color: #ff3333;
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: center;
-            border-bottom: 2px dashed #C93638;
-            padding-bottom: 5px;
+            border-bottom: 2px dashed #990000;
+            padding-bottom: 6px;
         }
-        
+
+        #table-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        /* Thẻ cảnh báo khi kho từ sắp hết (< 30 từ) */
+        .warning-card {
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
+            background-color: #93c5fd;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            color: #e11d48;
+            font-size: 2.3rem;
+            font-weight: bold;
+            line-height: 1.4;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* Bảng từ vựng */
         .vocab-table {
             width: 100%;
             border-collapse: collapse;
-            font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
-            font-size: 1.4rem;
-            color: #000000;
+            font-size: 1.3rem;
+            color: #ffffff;
         }
         
         .vocab-table th, .vocab-table td {
-            border: 1px solid #C93638;
-            padding: 10px 12px;
+            border: 1px solid #990000;
+            padding: 8px 10px;
             text-align: left;
         }
         
         .vocab-table th {
-            background-color: #FFDE96;
-            color: #C93638;
+            background-color: #7f1d1d;
+            color: #fde047;
         }
         
         .vocab-table tr:nth-child(even) {
-            background-color: #fffaf0;
+            background-color: #1a0505;
         }
-        
-        .text-center {
-            text-align: center !important;
-        }
-        
+
+        .text-center { text-align: center !important; }
         .empty-text {
-            color: #a0aec0;
+            color: #fde047;
             font-style: italic;
+            font-size: 1.4rem;
             text-align: center;
             padding: 20px 0;
         }
@@ -90,41 +215,159 @@
 <body>
 
     <div class="sketch-container">
-        <button class="btn-back" id="backBtn">←</button>
+        <button class="btn-back" id="backBtn" title="Quay lại">←</button>
 
         <div class="main-layout">
+            <!-- Cột bên trái: Tiêu đề & Nút chức năng -->
             <div class="left-panel">
-                <h1 class="title" style="margin-bottom: 30px;">Ôn tập từ mới của bạn mỗi ngày !</h1>
+                <h1 class="title">Ôn tập từ mới của bạn<br>mỗi ngày !</h1>
                 <div class="button-group">
-                    
                     <button class="btn" id="quizBtn">học ngay</button>
                     <button class="btn" id="importBtn">thêm từ mới</button>
                     <button class="btn" id="libraryBtn">xem toàn bộ từ vựng của bạn</button>
                 </div>
             </div>
 
+            <!-- Cột bên phải: Bảng từ hoặc Thẻ cảnh báo -->
             <div class="right-panel">
                 <h2 class="panel-title">Từ cần ôn tập hôm nay</h2>
                 <div id="table-container">
-                    <table class="vocab-table">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 15%">STT</th>
-                                <th style="width: 42.5%">Từ vựng (EN)</th>
-                                <th style="width: 42.5%">Ý nghĩa (VI)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="vocab-list-body">
-                            <tr>
-                                <td colspan="3" class="empty-text">Đang tải dữ liệu...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="empty-text">Đang kiểm tra kho từ vựng...</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="vocab.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quizBtn = document.getElementById('quizBtn'); 
+            const importBtn = document.getElementById('importBtn');
+            const libraryBtn = document.getElementById('libraryBtn');
+            const backBtn = document.getElementById('backBtn');
+            const tableContainer = document.getElementById('table-container');
+
+            const DB_NAME = 'VocabDB';
+            const DB_VERSION = 3;
+            const STORE_NAME = 'words';
+            let db;
+            let totalWordsCount = 0;
+
+            // 1. CHUYỂN HƯỚNG NÚT BẤM & KIỂM TRA KHO TỪ VỰNG (< 30 TỪ)
+            if (quizBtn) {
+                quizBtn.addEventListener('click', () => {
+                    if (totalWordsCount < 30) {
+                        alert(`⚠️ KHO TỪ VỰNG QuÁ ÍT (${totalWordsCount}/30 từ)!\n\nHệ thống yêu cầu kho từ phải có ít nhất 30 từ để đảm bảo hiệu quả học. Vui lòng thêm từ mới trước khi vào học!`);
+                        window.location.href = 'import.html';
+                    } else {
+                        window.location.href = 'mode2.html';
+                    }
+                });
+            }
+
+            if (importBtn) {
+                importBtn.addEventListener('click', () => {
+                    window.location.href = 'import.html';
+                });
+            }
+
+            if (libraryBtn) {
+                libraryBtn.addEventListener('click', () => {
+                    window.location.href = 'library.html';
+                });
+            }
+
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    window.location.href = '../index.html';
+                });
+            }
+
+            function getTodayString() {
+                const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000); 
+                return localDate.toISOString().split('T')[0]; 
+            }
+
+            // 2. KẾT NỐI DB VÀ ĐẢM BẢO STORE TỒN TẠI
+            function initAndFetchWords() {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = () => {
+                    console.error("Lỗi mở database:", request.error);
+                    tableContainer.innerHTML = `<div class="empty-text" style="color:#ef4444">Không thể kết nối dữ liệu!</div>`;
+                };
+
+                request.onsuccess = () => {
+                    db = request.result;
+                    checkAndRenderDashboard();
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        const store = database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('english', 'english', { unique: true });
+                        store.createIndex('nextReviewDate', 'nextReviewDate', { unique: false });
+                    }
+                };
+            }
+
+            // 3. XỬ LÝ HIỂN THỊ CẢNH BÁO HOẶC BẢNG TỪ VỰNG
+            function checkAndRenderDashboard() {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    const allWords = request.result || [];
+                    totalWordsCount = allWords.length;
+
+                    // YÊU CẦU 4: Báo cáo kho từ vựng quá ít (< 30 từ)
+                    if (totalWordsCount < 30) {
+                        tableContainer.innerHTML = `
+                            <div class="warning-card">
+                                kho từ vựng sắp hết<br>xin hãy nạp thêm
+                            </div>
+                        `;
+                    } else {
+                        // Kho từ đủ (>= 30 từ) -> Lọc các từ cần học hôm nay
+                        const todayStr = getTodayString();
+                        const todayWords = allWords.filter(word => word.nextReviewDate <= todayStr);
+
+                        if (todayWords.length === 0) {
+                            tableContainer.innerHTML = `<div class="empty-text">Thảnh thơi quá! Hôm nay không có từ nào cần ôn tập.</div>`;
+                            return;
+                        }
+
+                        let tableHtml = `
+                            <table class="vocab-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 15%">STT</th>
+                                        <th style="width: 42.5%">Từ vựng (EN)</th>
+                                        <th style="width: 42.5%">Ý nghĩa (VI)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        todayWords.forEach((word, index) => {
+                            tableHtml += `
+                                <tr>
+                                    <td class="text-center">${index + 1}</td>
+                                    <td><strong>${word.english}</strong></td>
+                                    <td>${word.vietnamese}</td>
+                                </tr>
+                            `;
+                        });
+
+                        tableHtml += `</tbody></table>`;
+                        tableContainer.innerHTML = tableHtml;
+                    }
+                };
+            }
+
+            initAndFetchWords();
+        });
+    </script>
 </body>
 </html>

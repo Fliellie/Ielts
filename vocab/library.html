@@ -3,53 +3,435 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thư Viện Từ Vựng</title>
+    <title>Kho Lưu Trữ Từ Vựng</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="vocab.css"> <!-- Import CSS chung của bạn -->
-    <link rel="stylesheet" href="library.css"> <!-- File CSS riêng của trang thư viện -->
+    
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #3b2808 !important; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Patrick Hand', cursive, sans-serif;
+            color: #f0fdf4;
+        }
+
+        /* Khung chính màn hình dạng Bảng Đen */
+        .sketch-container {
+            position: relative;
+            width: 96%;
+            max-width: 1250px;
+            height: 90vh;
+            background-color: #0d5234 !important;
+            border: 4px solid #5c2f17;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            padding: 20px 25px !important;
+            display: flex;
+            flex-direction: column;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        /* Header Bar chứa Nút Back, Dòng Hướng Dẫn & Nút Thùng Rác */
+        .library-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #0b422a;
+            border: 2px solid #052e16;
+            padding: 8px 18px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .btn-back {
+            background: #b91c1c;
+            color: #ffffff;
+            border: 2px solid #7f1d1d;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+        .btn-back:active { transform: scale(0.92); }
+
+        .instruction-text {
+            font-size: 1.4rem;
+            color: #fde047;
+            margin: 0;
+            text-align: center;
+            flex: 1;
+        }
+
+        .btn-trash {
+            background-color: #0d9488;
+            color: #ffffff;
+            border: 2px solid #0f766e;
+            border-radius: 8px;
+            width: 42px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .btn-trash:hover { background-color: #14b8a6; }
+        .btn-trash svg { width: 22px; height: 22px; stroke: #fff; }
+
+        /* Bố cục chia 2 Cột Trái - Phải */
+        .main-library-layout {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* CỘT BÊN TRÁI: Thẻ Ví Dụ Ngữ Cảnh */
+        .example-side-panel {
+            flex: 0.8;
+            background-color: #fef08a;
+            border: 3px solid #b91c1c;
+            border-radius: 16px;
+            padding: 20px;
+            color: #7f1d1d;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+            overflow-y: auto;
+        }
+
+        .example-panel-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            color: #b91c1c;
+            border-bottom: 2px dashed #b91c1c;
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .example-word-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #065f46;
+            margin-bottom: 10px;
+            text-align: center;
+            background: #a7f3d0;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #059669;
+        }
+
+        .example-item {
+            font-size: 1.35rem;
+            line-height: 1.4;
+            color: #451a03;
+            margin-bottom: 12px;
+            background: #fef3c7;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #f59e0b;
+        }
+
+        .example-placeholder {
+            font-size: 1.5rem;
+            color: #b45309;
+            text-align: center;
+            margin: auto 0;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* CỘT BÊN PHẢI: Bảng Danh Sách Từ Vựng */
+        .library-table-wrapper {
+            flex: 2;
+            background-color: #042f2e;
+            border: 2px solid #0f766e;
+            border-radius: 12px;
+            overflow-y: auto;
+        }
+
+        .library-table-wrapper::-webkit-scrollbar { width: 8px; }
+        .library-table-wrapper::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 4px; }
+
+        .library-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.3rem;
+            color: #f0fdf4;
+        }
+
+        .library-table th, .library-table td {
+            border: 1px solid #0f766e;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .library-table th {
+            background-color: #0b422a;
+            color: #fde047;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            text-transform: lowercase;
+        }
+
+        .library-table tbody tr {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .library-table tbody tr:hover {
+            background-color: #0d5234;
+        }
+
+        .library-table tbody tr.active-row {
+            background-color: #15803d !important;
+            color: #ffffff;
+        }
+
+        .text-center { text-align: center !important; }
+
+        .select-vocab-cb {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #22c55e;
+        }
+
+        .empty-notify {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #fde047;
+            padding: 40px 0;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="sketch-container library-container">
-        <!-- Nút Back về vocab.html -->
-        <button class="btn-back" id="backBtn">←</button>
-
-        <!-- Thanh tiêu đề hướng dẫn & nút Thùng rác -->
+    <div class="sketch-container">
+        <!-- Thanh công cụ phía trên -->
         <div class="library-header">
+            <button class="btn-back" id="backBtn" title="Quay lại">←</button>
             <p class="instruction-text">
                 tích chọn từ bạn muốn bỏ và nhấn thùng rác để xóa khỏi database
             </p>
             <button class="btn-trash" id="deleteSelectedBtn" title="Xóa các từ đã chọn">
-                <!-- Icon thùng rác vẽ tay SVG gọn gàng -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
                 </svg>
             </button>
         </div>
 
-        <!-- Bảng danh sách từ vựng dạng cuộn -->
-        <div class="library-table-wrapper">
-            <table class="library-table">
-                <thead>
-                    <tr>
-                        <th style="width: 8%">stt</th>
-                        <th style="width: 32%">từ mới</th>
-                        <th style="width: 32%">định nghĩa</th>
-                        <th style="width: 18%">lịch học</th>
-                        <th style="width: 10%">thao tác</th>
-                    </tr>
-                </thead>
-                <tbody id="libraryListBody">
-                    <tr>
-                        <td colspan="5" class="empty-notify">Đang tải danh sách từ vựng...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Bố cục 2 Cột Trái - Phải -->
+        <div class="main-library-layout">
+            <!-- CỘT BÊN TRÁI: Ví dụ ngữ cảnh của từ đang bấm chọn -->
+            <div class="example-side-panel" id="examplePanel">
+                <h3 class="example-panel-title">cột các ví dụ từ ở đây</h3>
+                <div class="example-placeholder" id="examplePlaceholder">
+                    Bấm vào một từ bất kỳ trong bảng bên phải để xem các câu ví dụ ngữ cảnh tại đây!
+                </div>
+                <div id="exampleContent" style="display: none;">
+                    <div class="example-word-title" id="selectedWordTitle">word</div>
+                    <div class="example-item" id="example1Text">1. Ví dụ 1...</div>
+                    <div class="example-item" id="example2Text">2. Ví dụ 2...</div>
+                </div>
+            </div>
+
+            <!-- CỘT BÊN PHẢI: Bảng Thư viện từ vựng -->
+            <div class="library-table-wrapper">
+                <table class="library-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%" class="text-center">stt</th>
+                            <th style="width: 30%">từ mới</th>
+                            <th style="width: 32%">định nghĩa</th>
+                            <th style="width: 20%" class="text-center">lịch học</th>
+                            <th style="width: 10%" class="text-center">thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="libraryListBody">
+                        <tr>
+                            <td colspan="5" class="empty-notify">Đang tải danh sách từ vựng...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <script src="library.js"></script>
+    <script>
+        const DB_NAME = 'VocabDB';
+        const DB_VERSION = 3;
+        const STORE_NAME = 'words';
+
+        let db;
+        let allWords = [];
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        const store = database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('english', 'english', { unique: true });
+                        store.createIndex('nextReviewDate', 'nextReviewDate', { unique: false });
+                    }
+                };
+            });
+        }
+
+        function loadAllWords() {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    allWords = request.result || [];
+                    resolve();
+                };
+
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function renderLibrary() {
+            const listBody = document.getElementById('libraryListBody');
+            listBody.innerHTML = '';
+
+            if (allWords.length === 0) {
+                listBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-notify">Thư viện trống trơn! Hãy nạp thêm vài từ mới trước nhé.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            allWords.forEach((word, index) => {
+                const row = document.createElement('tr');
+                
+                let formattedDate = 'Chưa rõ';
+                if (word.nextReviewDate) {
+                    const parts = word.nextReviewDate.split('-');
+                    if (parts.length === 3) {
+                        formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    } else {
+                        formattedDate = word.nextReviewDate;
+                    }
+                }
+
+                row.innerHTML = `
+                    <td class="text-center">${index + 1}</td>
+                    <td><strong>${word.english}</strong></td>
+                    <td>${word.vietnamese}</td>
+                    <td class="text-center">${formattedDate}</td>
+                    <td class="text-center" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="select-vocab-cb" data-id="${word.id}">
+                    </td>
+                `;
+
+                // Sự kiện Bấm chọn hàng để xem ví dụ ngữ cảnh ở Cột Trái
+                row.addEventListener('click', () => {
+                    document.querySelectorAll('.library-table tbody tr').forEach(r => r.classList.remove('active-row'));
+                    row.classList.add('active-row');
+                    showWordExamples(word);
+                });
+
+                listBody.appendChild(row);
+            });
+        }
+
+        // Hiển thị 2 ví dụ ngữ cảnh lên Thẻ bên trái
+        function showWordExamples(word) {
+            const placeholder = document.getElementById('examplePlaceholder');
+            const content = document.getElementById('exampleContent');
+            const wordTitle = document.getElementById('selectedWordTitle');
+            const ex1 = document.getElementById('example1Text');
+            const ex2 = document.getElementById('example2Text');
+
+            placeholder.style.display = 'none';
+            content.style.display = 'block';
+
+            wordTitle.textContent = `${word.english} (${word.vietnamese})`;
+            ex1.textContent = word.example1 ? `1. ${word.example1}` : '1. (Chưa có ví dụ câu 1)';
+            ex2.textContent = word.example2 ? `2. ${word.example2}` : '2. (Chưa có ví dụ câu 2)';
+        }
+
+        // Xóa các từ được tích chọn
+        async function deleteSelectedWords() {
+            const checkboxes = document.querySelectorAll('.select-vocab-cb:checked');
+            const idsToDelete = Array.from(checkboxes).map(cb => Number(cb.getAttribute('data-id')));
+
+            if (idsToDelete.length === 0) {
+                alert("Bạn chưa chọn từ nào để xóa cả!");
+                return;
+            }
+
+            const confirmDelete = confirm(`Bạn có chắc muốn xóa vĩnh viễn ${idsToDelete.length} từ đã chọn khỏi dữ liệu?`);
+            if (!confirmDelete) return;
+
+            try {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+
+                for (const id of idsToDelete) {
+                    store.delete(id);
+                }
+
+                tx.oncomplete = async () => {
+                    alert("Đã xóa các từ được chọn thành công!");
+                    // Reset khung ví dụ
+                    document.getElementById('examplePlaceholder').style.display = 'block';
+                    document.getElementById('exampleContent').style.display = 'none';
+                    
+                    await loadAllWords();
+                    renderLibrary();
+                };
+
+            } catch (error) {
+                console.error("Lỗi khi thực hiện xóa từ vựng:", error);
+                alert("Đã xảy ra lỗi trong quá trình xóa dữ liệu!");
+            }
+        }
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'vocab.html';
+        });
+
+        document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedWords);
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initDB();
+                await loadAllWords();
+                renderLibrary();
+            } catch (error) {
+                console.error("Lỗi khởi tạo thư viện:", error);
+            }
+        });
+    </script>
 </body>
 </html>
