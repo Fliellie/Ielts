@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiểm Tra Từ Vựng - Fix Lỗi Tính Điểm</title>
+    <title>Kiểm Tra Từ Vựng - Tính Điểm Theo Phần Trăm Ký Tự</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -37,20 +37,21 @@
             border-radius: 16px;
         }
 
-        /* Header Bar */
         .sticky-header {
             background-color: #5c2f17;
             border-bottom: 3px solid #3d2216;
-            padding: 10px 20px;
+            padding: 8px 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 10;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .header-buttons-left {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
             align-items: center;
         }
@@ -75,8 +76,8 @@
         .btn-quiz {
             background-color: #1d4ed8 !important;
             color: #ffffff;
-            font-size: 1.2rem;
-            padding: 6px 14px;
+            font-size: 1.15rem;
+            padding: 5px 12px;
             border: 2px solid #1e3a8a;
             border-radius: 8px;
             cursor: pointer;
@@ -87,28 +88,55 @@
         .btn-quiz:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-quiz:active { transform: translateY(1px); }
 
+        .btn-audio-toggle {
+            background-color: #059669 !important;
+            border-color: #047857 !important;
+        }
+
         .btn-next-phase {
             background-color: #fecdd3 !important;
             color: #9f1239 !important;
             border: 2px solid #e11d48 !important;
             font-weight: bold;
-            font-size: 1.3rem;
-            padding: 6px 20px;
+            font-size: 1.25rem;
+            padding: 5px 16px;
             border-radius: 20px;
         }
 
-        /* Banner thông báo */
+        .timer-box {
+            background-color: #111827;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 1.1rem;
+            color: #fde047;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-family: monospace;
+        }
+
+        .round-counter-badge {
+            background-color: #431407;
+            border: 2px solid #f97316;
+            color: #fdba74;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 1.15rem;
+            font-weight: bold;
+        }
+
         .phase-banner {
             background-color: #a7f3d0;
             color: #065f46;
             border: 2px solid #059669;
             border-radius: 25px;
             text-align: center;
-            padding: 10px 20px;
-            margin: 15px auto 10px auto;
-            width: 85%;
+            padding: 8px 15px;
+            margin: 10px auto 5px auto;
+            width: 88%;
             max-width: 950px;
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
@@ -116,7 +144,7 @@
         .scrollable-content {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 30px 30px 30px;
+            padding: 10px 25px 25px 25px;
         }
 
         .scrollable-content::-webkit-scrollbar { width: 10px; }
@@ -130,7 +158,7 @@
         .word-panel {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             width: 100%;
             max-width: 1250px;
             margin: 0 auto;
@@ -144,7 +172,7 @@
         }
 
         .word-index {
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: #f0fdf4;
             width: 35px;
             text-align: right;
@@ -156,8 +184,8 @@
             background-color: #580000;
             border: 2px solid #990000;
             border-radius: 10px;
-            padding: 10px 15px;
-            font-size: 1.4rem;
+            padding: 8px 12px;
+            font-size: 1.35rem;
             color: #ffdddd;
             text-align: center;
             min-height: 52px;
@@ -174,8 +202,8 @@
         .word-checkbox {
             appearance: none;
             -webkit-appearance: none;
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border: 2px solid #000;
             border-radius: 6px;
             background-color: #111;
@@ -184,7 +212,7 @@
         }
         .word-checkbox:checked::after {
             content: '✓';
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             color: #22c55e;
             position: absolute;
             top: 50%;
@@ -193,14 +221,13 @@
             font-weight: bold;
         }
 
-        /* Context Container */
         .context-display-box {
             flex: 2.2;
             background-color: #4a1d00;
             border: 2px solid #7c2d12;
             border-radius: 10px;
             padding: 8px 14px;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             color: #fde047;
             min-height: 52px;
             display: flex;
@@ -211,8 +238,8 @@
 
         .context-example-item {
             color: #fef08a;
-            font-size: 1.2rem;
-            line-height: 1.35;
+            font-size: 1.15rem;
+            line-height: 1.3;
         }
 
         .context-hidden {
@@ -222,9 +249,15 @@
             font-style: italic;
         }
 
-        /* Input Box */
-        .word-input-box {
+        .input-wrapper-column {
             flex: 2.2;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .word-input-box {
+            width: 100%;
             background-color: #4a1d00;
             border: 2px solid #7c2d12;
             border-radius: 10px;
@@ -233,7 +266,7 @@
             color: #fde047;
             font-family: 'Patrick Hand', cursive, sans-serif;
             outline: none;
-            min-height: 52px;
+            min-height: 50px;
             transition: all 0.2s;
         }
         .word-input-box:focus {
@@ -249,22 +282,44 @@
             opacity: 0.6;
         }
 
-        /* Score Badge */
+        .partial-hint-text {
+            font-size: 1.1rem;
+            color: #fef08a;
+            background-color: #78350f;
+            border: 1px dashed #f59e0b;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        .wrong-hint-text {
+            font-size: 1.1rem;
+            color: #fca5a5;
+            background-color: #7f1d1d;
+            border: 1px dashed #ef4444;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
         .score-badge {
-            min-width: 55px;
+            min-width: 135px;
             background: #331800;
             border: 2px solid #7c2d12;
             border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 1.3rem;
+            padding: 6px 10px;
+            font-size: 1.05rem;
             color: #fde047;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            line-height: 1.25;
         }
 
-        /* Feedback Flash */
         .flash-correct { animation: flashGreen 0.6s ease; }
         .flash-partial { animation: flashYellow 0.6s ease; }
         .flash-wrong { animation: flashRed 0.6s ease; }
@@ -273,7 +328,6 @@
         @keyframes flashYellow { 0% { background-color: #a16207; } 100% { background-color: #4a1d00; } }
         @keyframes flashRed { 0% { background-color: #991b1b; } 100% { background-color: #4a1d00; } }
 
-        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -305,25 +359,33 @@
 <body>
 
     <div class="sketch-container">
-        <!-- Header Controls -->
         <div class="sticky-header">
             <button class="btn-back" id="backBtn" title="Quay lại trang chủ">←</button>
             <div class="header-buttons-left">
+                <button class="btn-quiz btn-audio-toggle" id="toggleBgmBtn">🎵 Bật Nhạc Nền</button>
                 <button class="btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
                 <button class="btn-quiz" id="shuffleBtn">xáo trộn</button>
                 <button class="btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
                 <button class="btn-quiz" id="showAllBtn">hiện tất cả</button>
                 <button class="btn-quiz" id="promptAiBtn" style="background-color: #9333ea !important; border-color: #6b21a8;">Prompt AI</button>
             </div>
+            
+            <div class="round-counter-badge" id="roundCounterBadge">
+                Vòng: 1
+            </div>
+
+            <div class="timer-box">
+                <span>⏱️ <span id="timerDisplay">00:00</span></span>
+                <span>🏆 <span id="bestTimeDisplay">--:--</span></span>
+            </div>
+
             <button class="btn-quiz btn-next-phase" id="phaseActionButton">nộp bài</button>
         </div>
 
-        <!-- Banner thông báo -->
         <div class="phase-banner" id="phaseBanner">
             Lượt 2: sau khi điền hết hãy ấn xáo trộn để kiểm tra lại lần 2, nếu đã hoàn thành ca học, nhấn nộp bài
         </div>
 
-        <!-- Danh sách từ vựng -->
         <div class="scrollable-content">
             <div class="word-panel" id="wordListContainer">
                 <div style="text-align: center; font-size: 1.6rem; color: #fde047; margin-top: 40px;">
@@ -333,7 +395,6 @@
         </div>
     </div>
 
-    <!-- MODAL PROMPT AI GENERATOR -->
     <div class="modal-overlay" id="aiPromptModal">
         <div class="modal-card">
             <h3 class="modal-title">🤖 Tạo Prompt Cho AI (ChatGPT / Claude)</h3>
@@ -360,11 +421,139 @@
         let masteredWordIds = new Set(); 
         let wordInputs = {};       
         let sentenceInputs = {};   
+        let feedbackHints = {}; 
         
         let completedRounds = 0;       
         let wordScoreHistory = {};     
         let currentRoundScores = {};   
         let frozenAvgScores = {};      
+
+        let audioCtx = null;
+        let bgmInterval = null;
+        let isBgmPlaying = false;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playWrongSound() {
+            initAudioContext();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.25);
+        }
+
+        function playCorrectSound() {
+            initAudioContext();
+            const now = audioCtx.currentTime;
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            
+            notes.forEach((freq, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const startTime = now + idx * 0.06;
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, startTime);
+
+                gain.gain.setValueAtTime(0.2, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + 0.2);
+            });
+        }
+
+        function toggleBGM() {
+            initAudioContext();
+            const btn = document.getElementById('toggleBgmBtn');
+            if (isBgmPlaying) {
+                clearInterval(bgmInterval);
+                isBgmPlaying = false;
+                btn.textContent = "🎵 Bật Nhạc Nền";
+            } else {
+                isBgmPlaying = true;
+                btn.textContent = "🔇 Tắt Nhạc Nền";
+                const bgmNotes = [261.63, 329.63, 392.00, 440.00, 392.00, 329.63];
+                let noteIdx = 0;
+                
+                bgmInterval = setInterval(() => {
+                    if (!isBgmPlaying) return;
+                    const now = audioCtx.currentTime;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(bgmNotes[noteIdx], now);
+                    noteIdx = (noteIdx + 1) % bgmNotes.length;
+
+                    gain.gain.setValueAtTime(0.03, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.8);
+                }, 900);
+            }
+        }
+
+        let timerSeconds = 0;
+        let timerInterval = null;
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerSeconds = 0;
+            const timerDisplay = document.getElementById('timerDisplay');
+            const bestDisplay = document.getElementById('bestTimeDisplay');
+            
+            const bestTime = localStorage.getItem('vocab_best_time');
+            if (bestTime) {
+                bestDisplay.textContent = formatTime(parseInt(bestTime));
+            }
+
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                timerDisplay.textContent = formatTime(timerSeconds);
+            }, 1000);
+        }
+
+        function stopAndSaveTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            const bestTime = localStorage.getItem('vocab_best_time');
+            if (!bestTime || timerSeconds < parseInt(bestTime)) {
+                localStorage.setItem('vocab_best_time', timerSeconds);
+                alert(`🏆 Chúc mừng! Bạn đã đạt thời gian học nhanh nhất mới: ${formatTime(timerSeconds)}`);
+            }
+        }
+
+        function formatTime(totalSec) {
+            const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+            const s = (totalSec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
 
         function initDB() {
             return new Promise((resolve, reject) => {
@@ -390,19 +579,52 @@
             return localDate.toISOString().split('T')[0]; 
         }
 
+        function processDuplicates(wordsList) {
+            const enCounts = {};
+            const viCounts = {};
+
+            wordsList.forEach(w => {
+                const en = w.english.trim().toLowerCase();
+                const vi = w.vietnamese.trim().toLowerCase();
+                enCounts[en] = (enCounts[en] || 0) + 1;
+                viCounts[vi] = (viCounts[vi] || 0) + 1;
+            });
+
+            const enTracker = {};
+            const viTracker = {};
+
+            return wordsList.map(w => {
+                const wordCopy = { ...w };
+                const en = w.english.trim().toLowerCase();
+                const vi = w.vietnamese.trim().toLowerCase();
+
+                if (enCounts[en] > 1) {
+                    enTracker[en] = (enTracker[en] || 0) + 1;
+                    wordCopy.displayEnglish = `${w.english} (${enTracker[en]})`;
+                } else {
+                    wordCopy.displayEnglish = w.english;
+                }
+
+                if (viCounts[vi] > 1) {
+                    viTracker[vi] = (viTracker[vi] || 0) + 1;
+                    wordCopy.displayVietnamese = `${w.vietnamese} (${viTracker[vi]})`;
+                } else {
+                    wordCopy.displayVietnamese = w.vietnamese;
+                }
+
+                return wordCopy;
+            });
+        }
+
         function loadAndBalanceWords() {
             return new Promise((resolve, reject) => {
                 const todayStr = getTodayString();
-                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const tx = db.transaction(STORE_NAME, 'readonly');
                 const store = tx.objectStore(STORE_NAME);
                 const request = store.getAll();
 
                 request.onsuccess = () => {
                     const allWords = request.result || [];
-
-                    if (allWords.length < 30) {
-                        alert(`⚠️ CẢNH BÁO: Kho từ vựng hiện có ${allWords.length} từ (< 30 từ).\nVui lòng nạp thêm từ mới trước khi học!`);
-                    }
 
                     let dueWords = allWords.filter(word => {
                         if (!word.nextReviewDate) word.nextReviewDate = todayStr;
@@ -410,37 +632,10 @@
                     });
 
                     if (dueWords.length > 20) {
-                        const todayList = dueWords.slice(0, 20);
-                        const excessList = dueWords.slice(20);
-
-                        excessList.forEach(word => {
-                            let placed = false;
-                            let offsetDays = 1;
-
-                            while (!placed) {
-                                const checkDate = new Date();
-                                checkDate.setDate(checkDate.getDate() + offsetDays);
-                                const checkDateStr = checkDate.toISOString().split('T')[0];
-
-                                const countOnDate = allWords.filter(w => w.nextReviewDate === checkDateStr).length;
-                                if (countOnDate < 20) {
-                                    word.nextReviewDate = checkDateStr;
-                                    store.put(word);
-                                    placed = true;
-                                } else {
-                                    offsetDays++;
-                                }
-                            }
-                        });
-
-                        dueWords = todayList;
+                        dueWords = dueWords.slice(0, 20);
                     }
 
-                    const twoWeeksFromNow = new Date();
-                    twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
-                    const twoWeeksStr = twoWeeksFromNow.toISOString().split('T')[0];
-
-                    originalWords = dueWords.filter(w => w.nextReviewDate <= twoWeeksStr);
+                    originalWords = processDuplicates(dueWords);
                     originalWords.forEach(w => {
                         if (!w.timesLearned) w.timesLearned = 1;
                         wordScoreHistory[w.id] = [];
@@ -477,7 +672,24 @@
             return matrix[b.length][a.length];
         }
 
-        // ĐÃ SỬA LỖI: Lập tức cộng điểm vòng hiện tại vào điểm trung bình ngay khi gõ Enter!
+        // ĐỌC VÀ TÍNH PHẦN TRĂM ĐỘ CHÍNH XÁC QUY ĐỔI RA THANG ĐIỂM 10
+        function calculateAccuracyScore(typed, target) {
+            typed = typed.toLowerCase().trim();
+            target = target.toLowerCase().trim();
+
+            if (typed === target) return 10;
+            if (target.length === 0) return 0;
+
+            const dist = getLevenshteinDistance(typed, target);
+            const maxLength = Math.max(typed.length, target.length);
+
+            // Công thức: (1 - khoảng cách sai / độ dài lớn nhất) * 10
+            let accuracy = (1 - (dist / maxLength)) * 10;
+            if (accuracy < 0) accuracy = 0;
+
+            return Math.round(accuracy * 10) / 10;
+        }
+
         function getAverageScore(wordId) {
             if (frozenAvgScores[wordId] !== undefined) {
                 return frozenAvgScores[wordId];
@@ -486,7 +698,6 @@
             const history = wordScoreHistory[wordId] || [];
             const currentScore = currentRoundScores[wordId];
 
-            // Gộp tất cả các điểm cũ + điểm lượt hiện tại (nếu có)
             const allScores = [...history];
             if (currentScore !== undefined) {
                 allScores.push(currentScore);
@@ -495,12 +706,14 @@
             if (allScores.length === 0) return 0;
 
             const sum = allScores.reduce((a, b) => a + b, 0);
-            return Math.ceil(sum / allScores.length);
+            return Math.round((sum / allScores.length) * 10) / 10;
         }
 
         function render() {
             const container = document.getElementById('wordListContainer');
             container.innerHTML = '';
+
+            document.getElementById('roundCounterBadge').textContent = `Vòng: ${completedRounds + 1}`;
 
             if (activeWords.length === 0) {
                 container.innerHTML = `<div style="text-align:center; font-size:1.6rem; color:#fde047; margin-top:30px;">
@@ -513,19 +726,28 @@
             const phaseBtn = document.getElementById('phaseActionButton');
 
             if (currentPhase === 'context') {
-                banner.textContent = 'Lượt 1: ngữ cảnh';
+                banner.textContent = 'Lượt 1: ngữ cảnh (Luyện câu ví dụ)';
                 phaseBtn.textContent = 'Lượt 2 ->';
             } else {
-                banner.textContent = 'Lượt 2: sau khi điền hết hãy ấn xáo trộn để kiểm tra lại lần 2, nếu đã hoàn thành ca học, nhấn nộp bài';
+                banner.textContent = `Lượt 2 (Vòng ${completedRounds + 1}): Sau khi điền hết hãy ấn Xáo Trộn để ôn lại, nếu đã xong hãy ấn Nộp Bài`;
                 phaseBtn.textContent = 'nộp bài';
             }
 
-            activeWords.forEach((word, index) => {
+            let visibleWords = activeWords;
+            if (currentPhase === 'main' && completedRounds >= 2) {
+                visibleWords = activeWords.filter(word => {
+                    const history = wordScoreHistory[word.id] || [];
+                    const hasNeverFailed = history.length > 0 && history.every(score => score === 10);
+                    return !hasNeverFailed;
+                });
+            }
+
+            visibleWords.forEach((word, index) => {
                 const wordRow = document.createElement('div');
                 wordRow.className = 'word-row';
 
                 const isMastered = masteredWordIds.has(word.id);
-                const questionText = currentDisplayMode === 'en' ? word.vietnamese : word.english;
+                const questionText = currentDisplayMode === 'en' ? word.displayVietnamese : word.displayEnglish;
                 const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
 
                 const indexDiv = document.createElement('div');
@@ -592,7 +814,7 @@
                     const practiceInput = document.createElement('input');
                     practiceInput.type = 'text';
                     practiceInput.className = 'word-input-box';
-                    practiceInput.placeholder = 'đây là ô điền người dùng sẽ điền 2 câu mẫu sử dụng từ mới';
+                    practiceInput.placeholder = 'điền 2 câu mẫu sử dụng từ mới';
                     practiceInput.value = sentenceInputs[word.id] || '';
                     if (isMastered) practiceInput.disabled = true;
 
@@ -604,6 +826,9 @@
                     wordRow.appendChild(practiceInput);
                 } 
                 else {
+                    const inputColumn = document.createElement('div');
+                    inputColumn.className = 'input-wrapper-column';
+
                     const inputAnswer = document.createElement('input');
                     inputAnswer.type = 'text';
                     inputAnswer.className = 'word-input-box';
@@ -618,8 +843,8 @@
                         if (e.key === 'ArrowDown') {
                             e.preventDefault();
                             let nextIdx = index + 1;
-                            while (nextIdx < activeWords.length) {
-                                const nextWord = activeWords[nextIdx];
+                            while (nextIdx < visibleWords.length) {
+                                const nextWord = visibleWords[nextIdx];
                                 if (!masteredWordIds.has(nextWord.id)) {
                                     const nextInput = document.querySelector(`input[data-index="${nextIdx}"]`);
                                     if (nextInput) { nextInput.focus(); break; }
@@ -628,7 +853,7 @@
                             }
                         } else if (e.key === 'Enter') {
                             e.preventDefault();
-                            gradeSingleWord(word, inputAnswer.value, inputAnswer, index);
+                            gradeSingleWord(word, inputAnswer.value, inputAnswer, index, visibleWords);
                         }
                     });
 
@@ -636,12 +861,26 @@
                         wordInputs[word.id] = e.target.value;
                     });
 
+                    inputColumn.appendChild(inputAnswer);
+
+                    if (feedbackHints[word.id]) {
+                        const hintDiv = document.createElement('div');
+                        hintDiv.className = feedbackHints[word.id].type === 'partial' ? 'partial-hint-text' : 'wrong-hint-text';
+                        hintDiv.textContent = feedbackHints[word.id].text;
+                        inputColumn.appendChild(hintDiv);
+                    }
+
+                    const currentScore = currentRoundScores[word.id] !== undefined ? `${currentRoundScores[word.id]}/10` : '--';
                     const avgScore = getAverageScore(word.id);
+
                     const scoreBadge = document.createElement('div');
                     scoreBadge.className = 'score-badge';
-                    scoreBadge.innerHTML = `${avgScore}/${completedRounds}`;
+                    scoreBadge.innerHTML = `
+                        <div>Lượt này: ${currentScore}</div>
+                        <div style="color: #6ee7b7;">TB: ${avgScore}/10</div>
+                    `;
 
-                    wordRow.appendChild(inputAnswer);
+                    wordRow.appendChild(inputColumn);
                     wordRow.appendChild(scoreBadge);
                 }
 
@@ -649,7 +888,8 @@
             });
         }
 
-        function gradeSingleWord(word, userText, inputElement, index) {
+        // TÍNH ĐIỂM THEO PHẦN TRĂM ĐÚNG VÀ BẢO LƯU ĐIỂM LẦN ĐẦU
+        function gradeSingleWord(word, userText, inputElement, index, visibleWords) {
             if (!userText || userText.trim() === '') return;
 
             const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
@@ -659,39 +899,66 @@
                 rawTyped = rawTyped.split('->')[0].trim();
             }
 
-            const distance = getLevenshteinDistance(rawTyped, correctAnswer);
+            const isExact = (rawTyped.toLowerCase().trim() === correctAnswer.toLowerCase().trim());
 
-            let score = 0;
-            if (distance <= 1) {
-                score = 3; 
-                wordInputs[word.id] = rawTyped;
-                inputElement.classList.add('flash-correct');
-                setTimeout(() => inputElement.classList.remove('flash-correct'), 600);
-            } else if (distance === 2) {
-                score = 2; 
-                wordInputs[word.id] = rawTyped;
-                inputElement.classList.add('flash-partial');
-                setTimeout(() => inputElement.classList.remove('flash-partial'), 600);
-            } else {
-                score = 0; 
-                const revealedAnswerText = `${rawTyped} -> ${correctAnswer}`;
-                wordInputs[word.id] = revealedAnswerText;
-                inputElement.classList.add('flash-wrong');
-                setTimeout(() => inputElement.classList.remove('flash-wrong'), 600);
+            // TÍNH VÀ KHÓA ĐIỂM THEO PHẦN TRĂM KÝ TỰ Ở LẦN GÕ ĐẦU TIÊN
+            if (currentRoundScores[word.id] === undefined) {
+                const calculatedScore = calculateAccuracyScore(rawTyped, correctAnswer);
+                currentRoundScores[word.id] = calculatedScore;
             }
 
-            currentRoundScores[word.id] = score;
+            if (isExact) {
+                // ĐÃ GÕ ĐÚNG 100% KÝ TỰ
+                playCorrectSound();
+                delete feedbackHints[word.id];
+                wordInputs[word.id] = correctAnswer;
+                inputElement.classList.add('flash-correct');
+                setTimeout(() => inputElement.classList.remove('flash-correct'), 600);
 
-            render();
+                render();
 
-            let nextIdx = index + 1;
-            while (nextIdx < activeWords.length) {
-                const nextWord = activeWords[nextIdx];
-                if (!masteredWordIds.has(nextWord.id)) {
-                    const nextInput = document.querySelector(`input[data-index="${nextIdx}"]`);
-                    if (nextInput) { nextInput.focus(); break; }
+                // Chuyển sang ô tiếp theo
+                let nextIdx = index + 1;
+                while (nextIdx < visibleWords.length) {
+                    const nextWord = visibleWords[nextIdx];
+                    if (!masteredWordIds.has(nextWord.id)) {
+                        const nextInput = document.querySelector(`input[data-index="${nextIdx}"]`);
+                        if (nextInput) { nextInput.focus(); break; }
+                    }
+                    nextIdx++;
                 }
-                nextIdx++;
+            } else {
+                // CHƯA ĐÚNG 100% -> PHÁT ÂM THANH BÁO LỖI & BẮT GÕ LẠI
+                playWrongSound();
+                const dist = getLevenshteinDistance(rawTyped, correctAnswer);
+
+                if (dist <= 2) {
+                    feedbackHints[word.id] = {
+                        type: 'partial',
+                        text: `${rawTyped} !sai ít! ${correctAnswer}`
+                    };
+                    inputElement.classList.add('flash-partial');
+                    setTimeout(() => inputElement.classList.remove('flash-partial'), 600);
+                } else {
+                    feedbackHints[word.id] = {
+                        type: 'wrong',
+                        text: `Chưa chính xác! Đáp án đúng: ${correctAnswer}`
+                    };
+                    inputElement.classList.add('flash-wrong');
+                    setTimeout(() => inputElement.classList.remove('flash-wrong'), 600);
+                }
+
+                wordInputs[word.id] = rawTyped;
+                render();
+
+                // Giữ nguyên con trỏ chuột bắt gõ lại
+                setTimeout(() => {
+                    const currentInput = document.querySelector(`input[data-index="${index}"]`);
+                    if (currentInput) {
+                        currentInput.focus();
+                        currentInput.select();
+                    }
+                }, 50);
             }
         }
 
@@ -722,8 +989,7 @@
                                 rawTyped = rawTyped.split('->')[0].trim();
                             }
                             const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
-                            const dist = getLevenshteinDistance(rawTyped, correctAnswer);
-                            score = dist <= 1 ? 3 : (dist === 2 ? 2 : 0);
+                            score = calculateAccuracyScore(rawTyped, correctAnswer);
                         }
                         if (!wordScoreHistory[word.id]) wordScoreHistory[word.id] = [];
                         wordScoreHistory[word.id].push(score);
@@ -740,6 +1006,7 @@
             }
 
             wordInputs = {};
+            feedbackHints = {};
             showAnswersAll = false;
             render();
         }
@@ -750,20 +1017,24 @@
                 return;
             }
 
+            stopAndSaveTimer();
+
             const tx = db.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
 
             originalWords.forEach(word => {
-                const finalScore = getAverageScore(word.id);
+                const finalAvgScore = getAverageScore(word.id);
                 word.timesLearned = (word.timesLearned || 1) + 1;
 
                 let currentInterval = word.interval || 1;
                 let newInterval = 1;
 
-                if (finalScore === 3) {
+                if (finalAvgScore >= 9) {
                     newInterval = currentInterval === 1 ? 4 : Math.round(currentInterval * 2.3);
-                } else if (finalScore === 2) {
-                    newInterval = currentInterval === 1 ? 2 : Math.round(currentInterval * 1.3);
+                } else if (finalAvgScore >= 5) {
+                    newInterval = currentInterval === 1 ? 2 : Math.round(currentInterval * 1.5);
+                } else if (finalAvgScore >= 3) {
+                    newInterval = currentInterval === 1 ? 1 : Math.round(currentInterval * 1.2);
                 } else {
                     newInterval = 1; 
                 }
@@ -772,6 +1043,9 @@
                 const nextDate = new Date();
                 nextDate.setDate(nextDate.getDate() + newInterval);
                 word.nextReviewDate = nextDate.toISOString().split('T')[0];
+
+                delete word.displayEnglish;
+                delete word.displayVietnamese;
 
                 store.put(word);
             });
@@ -782,9 +1056,12 @@
             };
         }
 
+        document.getElementById('toggleBgmBtn').addEventListener('click', toggleBGM);
+
         document.getElementById('phaseActionButton').addEventListener('click', () => {
             if (currentPhase === 'context') {
                 currentPhase = 'main';
+                startTimer();
                 render();
             } else {
                 submitAndFinish();

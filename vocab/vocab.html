@@ -23,7 +23,6 @@
             color: #f0fdf4;
         }
 
-        /* Khung chính phong cách bảng đen viền đỏ */
         .sketch-container {
             position: relative;
             width: 94%;
@@ -38,7 +37,6 @@
             border-radius: 12px;
         }
 
-        /* Nút quay lại góc trên trái */
         .btn-back {
             position: absolute;
             top: 15px;
@@ -60,7 +58,6 @@
         }
         .btn-back:active { transform: scale(0.92); }
 
-        /* Bố cục chia đôi Trái - Phải */
         .main-layout {
             display: flex;
             gap: 30px;
@@ -71,7 +68,6 @@
             flex: 1;
         }
         
-        /* Panel Bên Trái */
         .left-panel {
             flex: 1;
             display: flex;
@@ -98,7 +94,6 @@
             max-width: 280px;
         }
 
-        /* Định dạng nút bấm sọc caro xanh lam đúng thiết kế */
         .btn {
             background: repeating-linear-gradient(
                 45deg,
@@ -129,7 +124,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Panel Bên Phải */
         .right-panel {
             flex: 1.2;
             background: #000000;
@@ -159,7 +153,6 @@
             overflow-y: auto;
         }
 
-        /* Thẻ cảnh báo khi kho từ sắp hết (< 30 từ) */
         .warning-card {
             width: 100%;
             height: 100%;
@@ -179,7 +172,6 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
-        /* Bảng từ vựng */
         .vocab-table {
             width: 100%;
             border-collapse: collapse;
@@ -218,7 +210,6 @@
         <button class="btn-back" id="backBtn" title="Quay lại">←</button>
 
         <div class="main-layout">
-            <!-- Cột bên trái: Tiêu đề & Nút chức năng -->
             <div class="left-panel">
                 <h1 class="title">Ôn tập từ mới của bạn<br>mỗi ngày !</h1>
                 <div class="button-group">
@@ -228,7 +219,6 @@
                 </div>
             </div>
 
-            <!-- Cột bên phải: Bảng từ hoặc Thẻ cảnh báo -->
             <div class="right-panel">
                 <h2 class="panel-title">Từ cần ôn tập hôm nay</h2>
                 <div id="table-container">
@@ -252,11 +242,10 @@
             let db;
             let totalWordsCount = 0;
 
-            // 1. CHUYỂN HƯỚNG NÚT BẤM & KIỂM TRA KHO TỪ VỰNG (< 30 TỪ)
             if (quizBtn) {
                 quizBtn.addEventListener('click', () => {
                     if (totalWordsCount < 30) {
-                        alert(`⚠️ KHO TỪ VỰNG QuÁ ÍT (${totalWordsCount}/30 từ)!\n\nHệ thống yêu cầu kho từ phải có ít nhất 30 từ để đảm bảo hiệu quả học. Vui lòng thêm từ mới trước khi vào học!`);
+                        alert(`⚠️ KHO TỪ VỰNG QUÁ ÍT (${totalWordsCount}/30 từ)!\n\nHệ thống yêu cầu kho từ phải có ít nhất 30 từ để đảm bảo hiệu quả học. Vui lòng thêm từ mới trước khi vào học!`);
                         window.location.href = 'import.html';
                     } else {
                         window.location.href = 'mode2.html';
@@ -264,41 +253,25 @@
                 });
             }
 
-            if (importBtn) {
-                importBtn.addEventListener('click', () => {
-                    window.location.href = 'import.html';
-                });
-            }
-
-            if (libraryBtn) {
-                libraryBtn.addEventListener('click', () => {
-                    window.location.href = 'library.html';
-                });
-            }
-
-            if (backBtn) {
-                backBtn.addEventListener('click', () => {
-                    window.location.href = '../index.html';
-                });
-            }
+            if (importBtn) importBtn.addEventListener('click', () => window.location.href = 'import.html');
+            if (libraryBtn) libraryBtn.addEventListener('click', () => window.location.href = 'library.html');
+            if (backBtn) backBtn.addEventListener('click', () => window.location.href = '../index.html');
 
             function getTodayString() {
                 const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000); 
                 return localDate.toISOString().split('T')[0]; 
             }
 
-            // 2. KẾT NỐI DB VÀ ĐẢM BẢO STORE TỒN TẠI
             function initAndFetchWords() {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
 
                 request.onerror = () => {
-                    console.error("Lỗi mở database:", request.error);
                     tableContainer.innerHTML = `<div class="empty-text" style="color:#ef4444">Không thể kết nối dữ liệu!</div>`;
                 };
 
                 request.onsuccess = () => {
                     db = request.result;
-                    checkAndRenderDashboard();
+                    balanceAndRenderDashboard();
                 };
 
                 request.onupgradeneeded = (event) => {
@@ -311,9 +284,10 @@
                 };
             }
 
-            // 3. XỬ LÝ HIỂN THỊ CẢNH BÁO HOẶC BẢNG TỪ VỰNG
-            function checkAndRenderDashboard() {
-                const tx = db.transaction(STORE_NAME, 'readonly');
+            // TỰ ĐỘNG CÂN BẰNG TỐI ĐA 20 TỪ NGAY KHI MỞ DASHBOARD
+            function balanceAndRenderDashboard() {
+                const todayStr = getTodayString();
+                const tx = db.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
                 const request = store.getAll();
 
@@ -321,48 +295,78 @@
                     const allWords = request.result || [];
                     totalWordsCount = allWords.length;
 
-                    // YÊU CẦU 4: Báo cáo kho từ vựng quá ít (< 30 từ)
                     if (totalWordsCount < 30) {
                         tableContainer.innerHTML = `
                             <div class="warning-card">
                                 kho từ vựng sắp hết<br>xin hãy nạp thêm
                             </div>
                         `;
-                    } else {
-                        // Kho từ đủ (>= 30 từ) -> Lọc các từ cần học hôm nay
-                        const todayStr = getTodayString();
-                        const todayWords = allWords.filter(word => word.nextReviewDate <= todayStr);
+                        return;
+                    }
 
-                        if (todayWords.length === 0) {
-                            tableContainer.innerHTML = `<div class="empty-text">Thảnh thơi quá! Hôm nay không có từ nào cần ôn tập.</div>`;
-                            return;
-                        }
+                    // Lọc danh sách từ đã đến hạn
+                    let dueWords = allWords.filter(word => {
+                        if (!word.nextReviewDate) word.nextReviewDate = todayStr;
+                        return word.nextReviewDate <= todayStr;
+                    });
 
-                        let tableHtml = `
-                            <table class="vocab-table">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center" style="width: 15%">STT</th>
-                                        <th style="width: 42.5%">Từ vựng (EN)</th>
-                                        <th style="width: 42.5%">Ý nghĩa (VI)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `;
+                    // Cân bằng nếu vượt quá 20 từ
+                    if (dueWords.length > 20) {
+                        const todayList = dueWords.slice(0, 20);
+                        const excessList = dueWords.slice(20);
 
-                        todayWords.forEach((word, index) => {
-                            tableHtml += `
-                                <tr>
-                                    <td class="text-center">${index + 1}</td>
-                                    <td><strong>${word.english}</strong></td>
-                                    <td>${word.vietnamese}</td>
-                                </tr>
-                            `;
+                        excessList.forEach(word => {
+                            let placed = false;
+                            let offsetDays = 1;
+
+                            while (!placed) {
+                                const checkDate = new Date();
+                                checkDate.setDate(checkDate.getDate() + offsetDays);
+                                const checkDateStr = checkDate.toISOString().split('T')[0];
+
+                                const countOnDate = allWords.filter(w => w.nextReviewDate === checkDateStr).length;
+                                if (countOnDate < 20) {
+                                    word.nextReviewDate = checkDateStr;
+                                    store.put(word);
+                                    placed = true;
+                                } else {
+                                    offsetDays++;
+                                }
+                            }
                         });
 
-                        tableHtml += `</tbody></table>`;
-                        tableContainer.innerHTML = tableHtml;
+                        dueWords = todayList;
                     }
+
+                    if (dueWords.length === 0) {
+                        tableContainer.innerHTML = `<div class="empty-text">Thảnh thơi quá! Hôm nay không có từ nào cần ôn tập.</div>`;
+                        return;
+                    }
+
+                    let tableHtml = `
+                        <table class="vocab-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 15%">STT</th>
+                                    <th style="width: 42.5%">Từ vựng (EN)</th>
+                                    <th style="width: 42.5%">Ý nghĩa (VI)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    dueWords.forEach((word, index) => {
+                        tableHtml += `
+                            <tr>
+                                <td class="text-center">${index + 1}</td>
+                                <td><strong>${word.english}</strong></td>
+                                <td>${word.vietnamese}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHtml += `</tbody></table>`;
+                    tableContainer.innerHTML = tableHtml;
                 };
             }
 

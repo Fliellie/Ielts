@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thêm Từ Mới Qua AI</title>
-    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-    <link href="[https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap](https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap)" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     
     <style>
         * { box-sizing: border-box; }
@@ -23,7 +23,7 @@
             color: #000;
         }
 
-        /* Khung chính vẽ tay vàng viền đỏ theo thiết kế */
+        /* Khung chính vẽ tay vàng viền đỏ */
         .sketch-container {
             position: relative;
             width: 92%;
@@ -203,10 +203,10 @@
         </div>
 
         <div class="main-import-layout">
-            <!-- Ô điền từ vựng muốn thêm hoặc để trống chọn trình độ -->
+            <!-- Ô nhập từ vựng tùy chọn -->
             <textarea class="prompt-input-box" id="customWordsInput" placeholder="nhập các từ mới bạn muốn thêm&#10;nếu bạn không có từ mới để nhập thì hãy chọn trình độ từ a1 đến c2 để chúng tôi thêm 30 từ mới"></textarea>
 
-            <!-- Bố cục dưới: Ô paste & Cụm nút bấm -->
+            <!-- Bố cục dưới: Khung dán kết quả & Cụm nút bấm -->
             <div class="bottom-action-layout">
                 <textarea class="paste-box" id="pasteResultInput" placeholder="paste vào đây"></textarea>
 
@@ -249,17 +249,23 @@
             return localDate.toISOString().split('T')[0]; 
         }
 
-        // 1. XỬ LÝ TẠO PROMPT AI & SAO CHÉP VÀO CLIPBOARD
+        // 1. TẠO PROMPT AI KÈM MÃ SEED NGẪU NHIÊN VÀ SAO CHÉP VÀO CLIPBOARD
         document.getElementById('getPromptBtn').addEventListener('click', () => {
             const level = document.getElementById('levelSelect').value;
             const customWords = document.getElementById('customWordsInput').value.trim();
 
+            // Sinh mã Seed ngẫu nhiên 6 chữ số
+            const randomSeed = Math.floor(Math.random() * 900000) + 100000;
+
             let generatedPrompt = "";
 
             if (customWords.length > 0) {
-                // Nếu người dùng tự nhập danh sách từ
+                // Tùy chọn 1: Người dùng tự nhập danh sách từ
                 generatedPrompt = `Hãy đóng vai giáo viên tiếng Anh. Tôi muốn học danh sách các từ sau:
 ${customWords}
+
+MÃ SEED NGẪU NHIÊN: ${randomSeed}
+(Mục đích mã seed: Dùng mã seed ngẫu nhiên này làm tín hiệu ngẫu nhiên hóa để tạo các câu ví dụ mới lạ, tự nhiên, không trùng lặp câu ví dụ với các lần trước).
 
 Hãy tạo dữ liệu học từ vựng cho các từ trên dưới định dạng JSON thuần (chỉ trả về JSON Array, không kèm lời giải thích hay thẻ mã markdown).
 Mỗi phần tử gồm 4 trường:
@@ -278,8 +284,11 @@ Ví dụ định dạng trả về:
   }
 ]`;
             } else {
-                // Nếu để trống -> Yêu cầu AI ngẫu nhiên 30 từ theo trình độ
+                // Tùy chọn 2: Tự động xin 30 từ ngẫu nhiên theo trình độ
                 generatedPrompt = `Hãy đóng vai giáo viên tiếng Anh. Hãy tạo giúp tôi đúng 30 từ vựng ngẫu nhiên trình độ ${level} theo định dạng JSON thuần (chỉ trả về JSON Array, không kèm lời giải thích hay thẻ mã markdown).
+
+MÃ SEED NGẪU NHIÊN: ${randomSeed}
+(GIẢI THÍCH CHO AI: Mã seed ngẫu nhiên này được tạo ra để làm tín hiệu ngẫu nhiên hóa dữ liệu. Hãy dựa vào mã seed này để xáo trộn kho từ vựng và chọn ra 30 từ hoàn toàn mới, tuyệt đối tránh tạo ra các từ lặp lại so với các lần tạo prompt trước đó).
 
 Mỗi phần tử gồm 4 trường:
 - "english": từ tiếng Anh
@@ -300,14 +309,14 @@ Ví dụ định dạng trả về:
 
             // Sao chép Prompt vào Bộ nhớ tạm (Clipboard)
             navigator.clipboard.writeText(generatedPrompt).then(() => {
-                alert(`✨ Đã sao chép Prompt AI vào bộ nhớ tạm!\n\nBây giờ bạn hãy dán Prompt vào ChatGPT/Claude/Gemini, sau đó copy toàn bộ kết quả AI trả về và dán vào ô "paste vào đây".`);
+                alert(`✨ Đã sao chép Prompt AI vào bộ nhớ tạm! (Mã Seed: ${randomSeed})\n\nBây giờ bạn hãy dán Prompt vào ChatGPT/Claude/Gemini, sau đó copy toàn bộ kết quả AI trả về và dán vào ô "paste vào đây".`);
             }).catch(err => {
                 console.error("Lỗi copy:", err);
                 prompt("Hãy copy đoạn Prompt dưới đây:", generatedPrompt);
             });
         });
 
-        // 2. XỬ LÝ BẤM NÚT "NẠP" ĐỂ LƯU KẾT QUẢ VÀO KHO TỪ VỰNG
+        // 2. LƯU KẾT QUẢ AI VÀO KHO TỪ VỰNG
         document.getElementById('napBtn').addEventListener('click', async () => {
             const rawPaste = document.getElementById('pasteResultInput').value.trim();
 
@@ -316,7 +325,7 @@ Ví dụ định dạng trả về:
                 return;
             }
 
-            // Làm sạch chuỗi JSON (xóa thẻ markdown ```json nếu AI trả về)
+            // Xóa thẻ mã markdown ```json nếu có
             let cleanedJson = rawPaste.replace(/```json/g, '').replace(/```/g, '').trim();
 
             let wordsArray = [];
@@ -345,7 +354,7 @@ Ví dụ định dạng trả về:
                         vietnamese: item.vietnamese.trim(),
                         example1: item.example1 || '',
                         example2: item.example2 || '',
-                        timesLearned: 1, // Bắt đầu ở lần học 1
+                        timesLearned: 1,
                         nextReviewDate: todayStr,
                         interval: 1
                     };
@@ -367,7 +376,7 @@ Ví dụ định dạng trả về:
             };
         });
 
-        // Nút Back
+        // Nút Quay lại
         document.getElementById('backBtn').addEventListener('click', () => {
             window.location.href = 'vocab.html';
         });
