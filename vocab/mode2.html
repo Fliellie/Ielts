@@ -180,7 +180,8 @@
         }
 
         .word-card-question {
-            flex: 1;
+            width: 220px;
+            min-width: 180px;
             background-color: #580000;
             border: 2px solid #990000;
             border-radius: 10px;
@@ -188,7 +189,7 @@
             font-size: 1.35rem;
             color: #ffdddd;
             text-align: center;
-            min-height: 52px;
+            min-height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -222,24 +223,38 @@
         }
 
         .context-display-box {
-            flex: 2.2;
-            background-color: #4a1d00;
+            flex: 1;
+            background-color: #3b1702;
             border: 2px solid #7c2d12;
-            border-radius: 10px;
-            padding: 8px 14px;
-            font-size: 1.2rem;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-size: 1.25rem;
             color: #fde047;
-            min-height: 52px;
+            min-height: 56px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            gap: 4px;
             cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        .context-display-box:hover {
+            border-color: #f59e0b;
+            background-color: #4a1d00;
         }
 
         .context-example-item {
             color: #fef08a;
-            font-size: 1.15rem;
-            line-height: 1.3;
+            font-size: 1.25rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .highlight-target {
+            color: #f59e0b;
+            font-weight: bold;
+            text-decoration: underline;
         }
 
         .context-hidden {
@@ -250,7 +265,7 @@
         }
 
         .input-wrapper-column {
-            flex: 2.2;
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -267,7 +282,7 @@
             font-family: 'Patrick Hand', cursive, sans-serif;
             outline: none;
             min-height: 50px;
-            transition: all 0.2s;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
         .word-input-box:focus {
             border-color: #f59e0b;
@@ -275,11 +290,28 @@
             background-color: #5c2400;
         }
         .word-input-box:disabled {
-            background-color: #2a1000 !important;
-            border-color: #4a1d00 !important;
-            color: #a8a29e !important;
+            background-color: #1f0b00 !important;
+            border-color: #431407 !important;
+            color: #22c55e !important;
             cursor: not-allowed !important;
-            opacity: 0.6;
+            opacity: 0.8;
+            font-weight: bold;
+        }
+
+        /* ANIMATION RUNG RÕ RÀNG & LÓE SÁNG VIỀN KHI GÕ */
+        .is-shaking {
+            animation: keyShake 0.14s cubic-bezier(.36,.07,.19,.97) !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.7) !important;
+        }
+
+        @keyframes keyShake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
+            100% { transform: translateX(0); }
         }
 
         .partial-hint-text {
@@ -369,7 +401,7 @@
                 <button class="btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
                 <button class="btn-quiz" id="shuffleBtn">xáo trộn</button>
                 <button class="btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
-                <button class="btn-quiz" id="showAllBtn">hiện tất cả</button>
+                <button class="btn-quiz" id="showAllBtn">bỏ tích tất cả</button>
                 <button class="btn-quiz" id="promptAiBtn" style="background-color: #9333ea !important; border-color: #6b21a8;">Prompt AI</button>
             </div>
             
@@ -421,8 +453,7 @@
         let currentPhase = 'context'; 
         let currentDisplayMode = 'en'; 
         let showAnswersAll = false;
-        let forceShowAll = false; 
-        let masteredWordIds = new Set(); // DANH SÁCH ID CÁC TỪ ĐÃ TÍCH CHỌN
+        let masteredWordIds = new Set(); 
         let wordInputs = {};       
         let sentenceInputs = {};   
         let feedbackHints = {}; 
@@ -432,7 +463,6 @@
         let currentRoundScores = {};   
         let frozenAvgScores = {};      
 
-        // HỆ THỐNG DANH SÁCH PHÁT NHẠC NỀN (PLAYLIST)
         const bgmPlaylist = [
             "Burgundy - Like You Mean It (freetouse.com).mp3",
             "Dagored - Urban Timelapse (freetouse.com).mp3",
@@ -467,58 +497,94 @@
             }
         }
 
+        // HỆ THỐNG AUDIO HỖ TRỢ KÍCH HOẠT TỰ ĐỘNG KHÔNG BỊ CHẶN
         let audioCtx = null;
-        function initAudioContext() {
+        function getAudioContext() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
+            return audioCtx;
+        }
+
+        // LẮNG NGHE TƯƠNG TÁC ĐẦU TIÊN CỦA NGƯỜI DÙNG ĐỂ MỞ KHÓA ÂM THANH
+        ['click', 'keydown', 'touchstart'].forEach(evt => {
+            window.addEventListener(evt, () => { getAudioContext(); }, { once: true });
+        });
+
+        // ÂM THANH GÕ PHÍM BÀN PHÍM CƠ NỔI BẬT VÀ RÕ TIẾNG
+        function playKeyPressSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500 + Math.random() * 250, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
         }
 
         function playWrongSound() {
-            initAudioContext();
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(120, now);
-            osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
 
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
 
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
 
-            osc.start(now);
-            osc.stop(now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } catch (e) {}
         }
 
         function playCorrectSound() {
-            initAudioContext();
-            const now = audioCtx.currentTime;
-            const notes = [523.25, 659.25, 783.99, 1046.50];
-            
-            notes.forEach((freq, idx) => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                const startTime = now + idx * 0.06;
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const startTime = now + idx * 0.06;
 
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, startTime);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, startTime);
 
-                gain.gain.setValueAtTime(0.2, startTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+                    gain.gain.setValueAtTime(0.2, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
 
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
 
-                osc.start(startTime);
-                osc.stop(startTime + 0.2);
-            });
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.2);
+                });
+            } catch (e) {}
         }
 
         // TIMER & LOCAL STORAGE
@@ -709,12 +775,9 @@
             return Math.round((sum / allScores.length) * 10) / 10;
         }
 
-        // LẤY CÁC TỪ HIỂN THỊ (NẾU forceShowAll THÌ HIỆN CẢ TỪ ĐÃ TÍCH, NẾU KHÔNG THÌ CHỈ HIỆN TỪ CHƯA TÍCH)
-        function getVisibleWords() {
-            if (forceShowAll) {
-                return activeWords;
-            }
-            return activeWords.filter(word => !masteredWordIds.has(word.id));
+        function formatExampleText(str) {
+            if (!str) return '';
+            return str.replace(/\((.*?)\)/g, '<span class="highlight-target">($1)</span>');
         }
 
         function render() {
@@ -734,16 +797,14 @@
             const phaseBtn = document.getElementById('phaseActionButton');
 
             if (currentPhase === 'context') {
-                banner.textContent = 'Lượt 1: ngữ cảnh (Luyện câu ví dụ)';
+                banner.textContent = 'Lượt 1: Ngữ cảnh (Luyện câu ví dụ)';
                 phaseBtn.textContent = 'Lượt 2 ->';
             } else {
                 banner.textContent = `Lượt 2 (Vòng ${completedRounds + 1}): Sau khi điền hết hãy ấn Xáo Trộn để ôn lại, nếu đã hoàn thành ca học, nhấn Nộp Bài`;
-                phaseBtn.textContent = 'nộp bài';
+                phaseBtn.textContent = 'Nộp bài';
             }
 
-            const visibleWords = getVisibleWords();
-
-            visibleWords.forEach((word, index) => {
+            activeWords.forEach((word, index) => {
                 const wordRow = document.createElement('div');
                 wordRow.className = 'word-row';
 
@@ -766,7 +827,6 @@
                 checkbox.className = 'word-checkbox';
                 checkbox.checked = isMastered;
 
-                // THAO TÁC CHECKBOX THỦ CÔNG
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         masteredWordIds.add(word.id);
@@ -791,17 +851,20 @@
                     const ex1 = word.example1 || `(1. Ví dụ mẫu cho: ${word.english})`;
                     const ex2 = word.example2 || `(2. Ví dụ mẫu cho: ${word.english})`;
 
+                    const formattedEx1 = formatExampleText(ex1);
+                    const formattedEx2 = formatExampleText(ex2);
+
                     if (isNewWord) {
                         contextBox.innerHTML = `
-                            <div class="context-example-item">1. ${ex1}</div>
-                            <div class="context-example-item">2. ${ex2}</div>
+                            <div class="context-example-item">1. ${formattedEx1}</div>
+                            <div class="context-example-item">2. ${formattedEx2}</div>
                         `;
                     } else {
                         let isRevealed = word._showContext || false;
                         if (isRevealed) {
                             contextBox.innerHTML = `
-                                <div class="context-example-item">1. ${ex1}</div>
-                                <div class="context-example-item">2. ${ex2}</div>
+                                <div class="context-example-item">1. ${formattedEx1}</div>
+                                <div class="context-example-item">2. ${formattedEx2}</div>
                             `;
                         } else {
                             contextBox.innerHTML = `<div class="context-hidden">các từ đã cũ sẽ bị ẩn như này (trừ khi ấn vào)</div>`;
@@ -813,19 +876,7 @@
                         });
                     }
 
-                    const practiceInput = document.createElement('input');
-                    practiceInput.type = 'text';
-                    practiceInput.className = 'word-input-box';
-                    practiceInput.placeholder = 'điền 2 câu mẫu sử dụng từ mới';
-                    practiceInput.value = sentenceInputs[word.id] || '';
-                    if (isMastered) practiceInput.disabled = true;
-
-                    practiceInput.addEventListener('input', (e) => {
-                        sentenceInputs[word.id] = e.target.value;
-                    });
-
                     wordRow.appendChild(contextBox);
-                    wordRow.appendChild(practiceInput);
                 } 
                 else {
                     const inputColumn = document.createElement('div');
@@ -835,18 +886,30 @@
                     inputAnswer.type = 'text';
                     inputAnswer.className = 'word-input-box';
                     inputAnswer.dataset.index = index;
-                    inputAnswer.value = showAnswersAll ? correctAnswer : (wordInputs[word.id] || '');
 
                     if (isMastered) {
                         inputAnswer.disabled = true;
+                        inputAnswer.value = correctAnswer;
+                    } else {
+                        inputAnswer.value = showAnswersAll ? correctAnswer : (wordInputs[word.id] || '');
                     }
 
+                    // KÍCH HOẠT ÂM THANH GÕ VÀ LÀM RUNG KHUNG KHI BẤM PHÍM KÝ TỰ / BACKSPACE
                     inputAnswer.addEventListener('keydown', (e) => {
+                        if (!e.repeat && (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete')) {
+                            playKeyPressSound();
+                            
+                            // Reset Animation để bấm liên tục vẫn rung nảy khung
+                            inputAnswer.classList.remove('is-shaking');
+                            void inputAnswer.offsetWidth;
+                            inputAnswer.classList.add('is-shaking');
+                        }
+
                         if (e.key === 'ArrowDown') {
                             e.preventDefault();
                             let nextIdx = index + 1;
-                            while (nextIdx < visibleWords.length) {
-                                const nextWord = visibleWords[nextIdx];
+                            while (nextIdx < activeWords.length) {
+                                const nextWord = activeWords[nextIdx];
                                 if (!masteredWordIds.has(nextWord.id)) {
                                     const nextInput = document.querySelector(`input[data-index="${nextIdx}"]`);
                                     if (nextInput) { nextInput.focus(); break; }
@@ -855,8 +918,12 @@
                             }
                         } else if (e.key === 'Enter') {
                             e.preventDefault();
-                            gradeSingleWord(word, inputAnswer.value, inputAnswer, index, visibleWords);
+                            gradeSingleWord(word, inputAnswer.value, inputAnswer, index, activeWords);
                         }
+                    });
+
+                    inputAnswer.addEventListener('animationend', () => {
+                        inputAnswer.classList.remove('is-shaking');
                     });
 
                     inputAnswer.addEventListener('input', (e) => {
@@ -958,11 +1025,9 @@
             }
         }
 
-        // CHỈ PHẢI ĐIỀN CÁC TỪ CHƯA TÍCH DẤU (CÁC TỪ ĐANG HIỂN THỊ)
         function validateAllInputsFilled() {
             if (currentPhase === 'context') return true;
-            const visibleWords = getVisibleWords();
-            for (let word of visibleWords) {
+            for (let word of activeWords) {
                 if (masteredWordIds.has(word.id)) continue; 
                 const val = wordInputs[word.id];
                 if (!val || val.trim().length === 0) return false;
@@ -977,24 +1042,18 @@
             }
 
             if (currentPhase === 'main') {
-                const visible = getVisibleWords();
-                const visibleIds = new Set(visible.map(w => w.id));
-
                 activeWords.forEach(word => {
                     if (!masteredWordIds.has(word.id)) {
-                        if (visibleIds.has(word.id)) {
-                            let score = currentRoundScores[word.id];
-                            if (score === undefined) {
-                                const text = wordInputs[word.id] || '';
-                                let rawTyped = text.includes('->') ? text.split('->')[0].trim() : text;
-                                const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
-                                score = calculateAccuracyScore(rawTyped, correctAnswer);
-                            }
-                            if (!wordScoreHistory[word.id]) wordScoreHistory[word.id] = [];
-                            wordScoreHistory[word.id].push(score);
+                        let score = currentRoundScores[word.id];
+                        if (score === undefined) {
+                            const text = wordInputs[word.id] || '';
+                            let rawTyped = text.includes('->') ? text.split('->')[0].trim() : text;
+                            const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
+                            score = calculateAccuracyScore(rawTyped, correctAnswer);
                         }
+                        if (!wordScoreHistory[word.id]) wordScoreHistory[word.id] = [];
+                        wordScoreHistory[word.id].push(score);
                     } else {
-                        // Từ đã được tích thủ công hoặc tự động -> Ghi nhận 10đ tuyệt đối
                         if (!wordScoreHistory[word.id]) wordScoreHistory[word.id] = [];
                         wordScoreHistory[word.id].push(10);
                     }
@@ -1003,15 +1062,12 @@
                 completedRounds++;
                 currentRoundScores = {}; 
 
-                // KHI CHUYỂN SANG VÒNG 3+ (completedRounds >= 2):
-                // TỰ ĐỘNG THÊM TÍCH CHỌN CHECKBOX CHO CÁC TỪ ĐẠT 10/10 Ở TẤT CẢ CÁC VÒNG TRƯỚC
                 if (completedRounds >= 2) {
                     activeWords.forEach(word => {
-                        const history = wordScoreHistory[word.id] || [];
-                        const hasNeverFailed = history.length > 0 && history.every(score => score === 10);
-                        if (hasNeverFailed && !masteredWordIds.has(word.id)) {
+                        const avgScore = getAverageScore(word.id);
+                        if (avgScore >= 10 && !masteredWordIds.has(word.id)) {
                             masteredWordIds.add(word.id);
-                            frozenAvgScores[word.id] = getAverageScore(word.id);
+                            frozenAvgScores[word.id] = avgScore;
                         }
                     });
                 }
@@ -1103,16 +1159,9 @@
             render();
         });
 
-        // NÚT HIỆN TẤT CẢ / ẨN TỪ ĐÃ THUỘC
-        document.getElementById('showAllBtn').addEventListener('click', (e) => {
-            forceShowAll = !forceShowAll;
-            if (forceShowAll) {
-                e.target.textContent = "ẩn từ đã thuộc";
-                e.target.style.backgroundColor = "#ea580c";
-            } else {
-                e.target.textContent = "hiện tất cả";
-                e.target.style.backgroundColor = "#1d4ed8";
-            }
+        document.getElementById('showAllBtn').addEventListener('click', () => {
+            masteredWordIds.clear();
+            frozenAvgScores = {};
             render();
         });
 
