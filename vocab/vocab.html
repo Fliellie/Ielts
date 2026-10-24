@@ -257,8 +257,9 @@
             if (libraryBtn) libraryBtn.addEventListener('click', () => window.location.href = 'library.html');
             if (backBtn) backBtn.addEventListener('click', () => window.location.href = '../index.html');
 
-            function getTodayString() {
-                const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000); 
+            // Lấy chuỗi ngày chuẩn theo định dạng YYYY-MM-DD
+            function getDateStringWithOffset(offsetDays = 0) {
+                const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000 + offsetDays * 24 * 60 * 60 * 1000); 
                 return localDate.toISOString().split('T')[0]; 
             }
 
@@ -284,9 +285,9 @@
                 };
             }
 
-            // TỰ ĐỘNG CÂN BẰNG TỐI ĐA 20 TỪ NGAY KHI MỞ DASHBOARD
+            // HÀM TỰ ĐỘNG ĐẨY TỪ QUÁ HẠN VỀ HÔM NAY VÀ PHÂN BỔ DƯ THỪA
             function balanceAndRenderDashboard() {
-                const todayStr = getTodayString();
+                const todayStr = getDateStringWithOffset(0);
                 const tx = db.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
                 const request = store.getAll();
@@ -304,29 +305,47 @@
                         return;
                     }
 
-                    // Lọc danh sách từ đã đến hạn
+                    // 1. Lấy tất cả từ quá hạn hoặc đến hạn hôm nay (nextReviewDate <= todayStr)
                     let dueWords = allWords.filter(word => {
                         if (!word.nextReviewDate) word.nextReviewDate = todayStr;
                         return word.nextReviewDate <= todayStr;
                     });
 
-                    // Cân bằng nếu vượt quá 20 từ
-                    if (dueWords.length > 20) {
-                        const todayList = dueWords.slice(0, 20);
-                        const excessList = dueWords.slice(20);
+                    // 2. Chia 2 nhóm: 20 từ cho hôm nay và nhóm bị quá tải dư ra
+                    const todayList = dueWords.slice(0, 20);
+                    const excessList = dueWords.slice(20);
+
+                    // 3. Đẩy tất cả 20 từ hôm nay có ngày trong quá khứ (< todayStr) về chính xác hôm nay
+                    todayList.forEach(word => {
+                        if (word.nextReviewDate < todayStr) {
+                            word.nextReviewDate = todayStr;
+                            store.put(word);
+                        }
+                    });
+
+                    // 4. Đẩy nhóm dư thừa sang các ngày tiếp theo (Nếu ngày tiếp theo đã có 20 từ thì đẩy tiếp ngày sau nữa)
+                    if (excessList.length > 0) {
+                        // Tạo bảng đếm số từ đã phân bổ theo ngày
+                        const dateCounts = {};
+                        allWords.forEach(w => {
+                            const d = w.nextReviewDate || todayStr;
+                            dateCounts[d] = (dateCounts[d] || 0) + 1;
+                        });
+                        
+                        // Khóa danh sách hôm nay ở đúng 20 từ
+                        dateCounts[todayStr] = todayList.length;
 
                         excessList.forEach(word => {
                             let placed = false;
                             let offsetDays = 1;
 
                             while (!placed) {
-                                const checkDate = new Date();
-                                checkDate.setDate(checkDate.getDate() + offsetDays);
-                                const checkDateStr = checkDate.toISOString().split('T')[0];
+                                const checkDateStr = getDateStringWithOffset(offsetDays);
+                                const countOnDate = dateCounts[checkDateStr] || 0;
 
-                                const countOnDate = allWords.filter(w => w.nextReviewDate === checkDateStr).length;
                                 if (countOnDate < 20) {
                                     word.nextReviewDate = checkDateStr;
+                                    dateCounts[checkDateStr] = countOnDate + 1;
                                     store.put(word);
                                     placed = true;
                                 } else {
@@ -334,11 +353,10 @@
                                 }
                             }
                         });
-
-                        dueWords = todayList;
                     }
 
-                    if (dueWords.length === 0) {
+                    // 5. Hiển thị danh sách 20 từ cần ôn hôm nay
+                    if (todayList.length === 0) {
                         tableContainer.innerHTML = `<div class="empty-text">Thảnh thơi quá! Hôm nay không có từ nào cần ôn tập.</div>`;
                         return;
                     }
@@ -355,7 +373,7 @@
                             <tbody>
                     `;
 
-                    dueWords.forEach((word, index) => {
+                    todayList.forEach((word, index) => {
                         tableHtml += `
                             <tr>
                                 <td class="text-center">${index + 1}</td>

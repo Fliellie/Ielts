@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiểm Tra Từ Vựng - Tính Điểm Theo Phần Trăm Ký Tự</title>
+    <title>Kiểm Tra Từ Vựng - Thang Điểm 10 & Playlist Nhạc Nền</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -358,6 +358,9 @@
 </head>
 <body>
 
+    <!-- THẺ AUDIO PHÁT NHẠC NỀN -->
+    <audio id="bgmAudio" preload="auto"></audio>
+
     <div class="sketch-container">
         <div class="sticky-header">
             <button class="btn-back" id="backBtn" title="Quay lại trang chủ">←</button>
@@ -418,7 +421,8 @@
         let currentPhase = 'context'; 
         let currentDisplayMode = 'en'; 
         let showAnswersAll = false;
-        let masteredWordIds = new Set(); 
+        let forceShowAll = false; 
+        let masteredWordIds = new Set(); // DANH SÁCH ID CÁC TỪ ĐÃ TÍCH CHỌN
         let wordInputs = {};       
         let sentenceInputs = {};   
         let feedbackHints = {}; 
@@ -428,10 +432,42 @@
         let currentRoundScores = {};   
         let frozenAvgScores = {};      
 
-        let audioCtx = null;
-        let bgmInterval = null;
-        let isBgmPlaying = false;
+        // HỆ THỐNG DANH SÁCH PHÁT NHẠC NỀN (PLAYLIST)
+        const bgmPlaylist = [
+            "Burgundy - Like You Mean It (freetouse.com).mp3",
+            "Dagored - Urban Timelapse (freetouse.com).mp3",
+            "Luke Bergs - Sunlight (freetouse.com).mp3"
+        ];
+        let currentTrackIndex = 0;
 
+        const bgmAudio = document.getElementById('bgmAudio');
+        bgmAudio.volume = 0.3; 
+
+        bgmAudio.addEventListener('ended', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % bgmPlaylist.length;
+            bgmAudio.src = bgmPlaylist[currentTrackIndex];
+            bgmAudio.play().catch(err => console.log("Lỗi phát bài tiếp theo:", err));
+        });
+
+        function toggleBGM() {
+            const btn = document.getElementById('toggleBgmBtn');
+            if (bgmAudio.paused) {
+                if (!bgmAudio.src || bgmAudio.src === "" || bgmAudio.src.endsWith("mode2.html")) {
+                    bgmAudio.src = bgmPlaylist[currentTrackIndex];
+                }
+                bgmAudio.play().then(() => {
+                    btn.textContent = "🔇 Tắt Nhạc Nền";
+                }).catch(err => {
+                    console.log("Không thể phát audio tự động:", err);
+                    alert("Vui lòng tương tác với trang trước khi bật nhạc!");
+                });
+            } else {
+                bgmAudio.pause();
+                btn.textContent = "🎵 Bật Nhạc Nền";
+            }
+        }
+
+        let audioCtx = null;
         function initAudioContext() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -485,41 +521,7 @@
             });
         }
 
-        function toggleBGM() {
-            initAudioContext();
-            const btn = document.getElementById('toggleBgmBtn');
-            if (isBgmPlaying) {
-                clearInterval(bgmInterval);
-                isBgmPlaying = false;
-                btn.textContent = "🎵 Bật Nhạc Nền";
-            } else {
-                isBgmPlaying = true;
-                btn.textContent = "🔇 Tắt Nhạc Nền";
-                const bgmNotes = [261.63, 329.63, 392.00, 440.00, 392.00, 329.63];
-                let noteIdx = 0;
-                
-                bgmInterval = setInterval(() => {
-                    if (!isBgmPlaying) return;
-                    const now = audioCtx.currentTime;
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(bgmNotes[noteIdx], now);
-                    noteIdx = (noteIdx + 1) % bgmNotes.length;
-
-                    gain.gain.setValueAtTime(0.03, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    osc.start(now);
-                    osc.stop(now + 0.8);
-                }, 900);
-            }
-        }
-
+        // TIMER & LOCAL STORAGE
         let timerSeconds = 0;
         let timerInterval = null;
 
@@ -567,7 +569,7 @@
                     const database = event.target.result;
                     if (!database.objectStoreNames.contains(STORE_NAME)) {
                         const store = database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                        store.createIndex('english', 'english', { unique: true });
+                        store.createIndex('english', 'english', { unique: false });
                         store.createIndex('nextReviewDate', 'nextReviewDate', { unique: false });
                     }
                 };
@@ -672,7 +674,6 @@
             return matrix[b.length][a.length];
         }
 
-        // ĐỌC VÀ TÍNH PHẦN TRĂM ĐỘ CHÍNH XÁC QUY ĐỔI RA THANG ĐIỂM 10
         function calculateAccuracyScore(typed, target) {
             typed = typed.toLowerCase().trim();
             target = target.toLowerCase().trim();
@@ -683,7 +684,6 @@
             const dist = getLevenshteinDistance(typed, target);
             const maxLength = Math.max(typed.length, target.length);
 
-            // Công thức: (1 - khoảng cách sai / độ dài lớn nhất) * 10
             let accuracy = (1 - (dist / maxLength)) * 10;
             if (accuracy < 0) accuracy = 0;
 
@@ -709,6 +709,14 @@
             return Math.round((sum / allScores.length) * 10) / 10;
         }
 
+        // LẤY CÁC TỪ HIỂN THỊ (NẾU forceShowAll THÌ HIỆN CẢ TỪ ĐÃ TÍCH, NẾU KHÔNG THÌ CHỈ HIỆN TỪ CHƯA TÍCH)
+        function getVisibleWords() {
+            if (forceShowAll) {
+                return activeWords;
+            }
+            return activeWords.filter(word => !masteredWordIds.has(word.id));
+        }
+
         function render() {
             const container = document.getElementById('wordListContainer');
             container.innerHTML = '';
@@ -729,18 +737,11 @@
                 banner.textContent = 'Lượt 1: ngữ cảnh (Luyện câu ví dụ)';
                 phaseBtn.textContent = 'Lượt 2 ->';
             } else {
-                banner.textContent = `Lượt 2 (Vòng ${completedRounds + 1}): Sau khi điền hết hãy ấn Xáo Trộn để ôn lại, nếu đã xong hãy ấn Nộp Bài`;
+                banner.textContent = `Lượt 2 (Vòng ${completedRounds + 1}): Sau khi điền hết hãy ấn Xáo Trộn để ôn lại, nếu đã hoàn thành ca học, nhấn Nộp Bài`;
                 phaseBtn.textContent = 'nộp bài';
             }
 
-            let visibleWords = activeWords;
-            if (currentPhase === 'main' && completedRounds >= 2) {
-                visibleWords = activeWords.filter(word => {
-                    const history = wordScoreHistory[word.id] || [];
-                    const hasNeverFailed = history.length > 0 && history.every(score => score === 10);
-                    return !hasNeverFailed;
-                });
-            }
+            const visibleWords = getVisibleWords();
 
             visibleWords.forEach((word, index) => {
                 const wordRow = document.createElement('div');
@@ -765,6 +766,7 @@
                 checkbox.className = 'word-checkbox';
                 checkbox.checked = isMastered;
 
+                // THAO TÁC CHECKBOX THỦ CÔNG
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         masteredWordIds.add(word.id);
@@ -888,7 +890,6 @@
             });
         }
 
-        // TÍNH ĐIỂM THEO PHẦN TRĂM ĐÚNG VÀ BẢO LƯU ĐIỂM LẦN ĐẦU
         function gradeSingleWord(word, userText, inputElement, index, visibleWords) {
             if (!userText || userText.trim() === '') return;
 
@@ -901,14 +902,12 @@
 
             const isExact = (rawTyped.toLowerCase().trim() === correctAnswer.toLowerCase().trim());
 
-            // TÍNH VÀ KHÓA ĐIỂM THEO PHẦN TRĂM KÝ TỰ Ở LẦN GÕ ĐẦU TIÊN
             if (currentRoundScores[word.id] === undefined) {
                 const calculatedScore = calculateAccuracyScore(rawTyped, correctAnswer);
                 currentRoundScores[word.id] = calculatedScore;
             }
 
             if (isExact) {
-                // ĐÃ GÕ ĐÚNG 100% KÝ TỰ
                 playCorrectSound();
                 delete feedbackHints[word.id];
                 wordInputs[word.id] = correctAnswer;
@@ -917,7 +916,6 @@
 
                 render();
 
-                // Chuyển sang ô tiếp theo
                 let nextIdx = index + 1;
                 while (nextIdx < visibleWords.length) {
                     const nextWord = visibleWords[nextIdx];
@@ -928,7 +926,6 @@
                     nextIdx++;
                 }
             } else {
-                // CHƯA ĐÚNG 100% -> PHÁT ÂM THANH BÁO LỖI & BẮT GÕ LẠI
                 playWrongSound();
                 const dist = getLevenshteinDistance(rawTyped, correctAnswer);
 
@@ -951,7 +948,6 @@
                 wordInputs[word.id] = rawTyped;
                 render();
 
-                // Giữ nguyên con trỏ chuột bắt gõ lại
                 setTimeout(() => {
                     const currentInput = document.querySelector(`input[data-index="${index}"]`);
                     if (currentInput) {
@@ -962,9 +958,11 @@
             }
         }
 
+        // CHỈ PHẢI ĐIỀN CÁC TỪ CHƯA TÍCH DẤU (CÁC TỪ ĐANG HIỂN THỊ)
         function validateAllInputsFilled() {
             if (currentPhase === 'context') return true;
-            for (let word of activeWords) {
+            const visibleWords = getVisibleWords();
+            for (let word of visibleWords) {
                 if (masteredWordIds.has(word.id)) continue; 
                 const val = wordInputs[word.id];
                 if (!val || val.trim().length === 0) return false;
@@ -979,25 +977,44 @@
             }
 
             if (currentPhase === 'main') {
+                const visible = getVisibleWords();
+                const visibleIds = new Set(visible.map(w => w.id));
+
                 activeWords.forEach(word => {
                     if (!masteredWordIds.has(word.id)) {
-                        let score = currentRoundScores[word.id];
-                        if (score === undefined) {
-                            const text = wordInputs[word.id] || '';
-                            let rawTyped = text;
-                            if (rawTyped.includes('->')) {
-                                rawTyped = rawTyped.split('->')[0].trim();
+                        if (visibleIds.has(word.id)) {
+                            let score = currentRoundScores[word.id];
+                            if (score === undefined) {
+                                const text = wordInputs[word.id] || '';
+                                let rawTyped = text.includes('->') ? text.split('->')[0].trim() : text;
+                                const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
+                                score = calculateAccuracyScore(rawTyped, correctAnswer);
                             }
-                            const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
-                            score = calculateAccuracyScore(rawTyped, correctAnswer);
+                            if (!wordScoreHistory[word.id]) wordScoreHistory[word.id] = [];
+                            wordScoreHistory[word.id].push(score);
                         }
+                    } else {
+                        // Từ đã được tích thủ công hoặc tự động -> Ghi nhận 10đ tuyệt đối
                         if (!wordScoreHistory[word.id]) wordScoreHistory[word.id] = [];
-                        wordScoreHistory[word.id].push(score);
+                        wordScoreHistory[word.id].push(10);
                     }
                 });
 
                 completedRounds++;
                 currentRoundScores = {}; 
+
+                // KHI CHUYỂN SANG VÒNG 3+ (completedRounds >= 2):
+                // TỰ ĐỘNG THÊM TÍCH CHỌN CHECKBOX CHO CÁC TỪ ĐẠT 10/10 Ở TẤT CẢ CÁC VÒNG TRƯỚC
+                if (completedRounds >= 2) {
+                    activeWords.forEach(word => {
+                        const history = wordScoreHistory[word.id] || [];
+                        const hasNeverFailed = history.length > 0 && history.every(score => score === 10);
+                        if (hasNeverFailed && !masteredWordIds.has(word.id)) {
+                            masteredWordIds.add(word.id);
+                            frozenAvgScores[word.id] = getAverageScore(word.id);
+                        }
+                    });
+                }
             }
 
             for (let i = activeWords.length - 1; i > 0; i--) {
@@ -1086,9 +1103,16 @@
             render();
         });
 
-        document.getElementById('showAllBtn').addEventListener('click', () => {
-            masteredWordIds.clear();
-            frozenAvgScores = {};
+        // NÚT HIỆN TẤT CẢ / ẨN TỪ ĐÃ THUỘC
+        document.getElementById('showAllBtn').addEventListener('click', (e) => {
+            forceShowAll = !forceShowAll;
+            if (forceShowAll) {
+                e.target.textContent = "ẩn từ đã thuộc";
+                e.target.style.backgroundColor = "#ea580c";
+            } else {
+                e.target.textContent = "hiện tất cả";
+                e.target.style.backgroundColor = "#1d4ed8";
+            }
             render();
         });
 
