@@ -298,7 +298,7 @@
             font-weight: bold;
         }
 
-        /* ANIMATION RUNG RÕ RÀNG & LÓE SÁNG VIỀN KHI GÕ */
+        /* ANIMATION RUNG KHUNG KHI GÕ */
         .is-shaking {
             animation: keyShake 0.14s cubic-bezier(.36,.07,.19,.97) !important;
             border-color: #f59e0b !important;
@@ -497,7 +497,7 @@
             }
         }
 
-        // HỆ THỐNG AUDIO HỖ TRỢ KÍCH HOẠT TỰ ĐỘNG KHÔNG BỊ CHẶN
+        // HỆ THỐNG AUDIO DÙNG CHO ÂM THANH BÁO ĐÚNG / SAI
         let audioCtx = null;
         function getAudioContext() {
             if (!audioCtx) {
@@ -509,35 +509,9 @@
             return audioCtx;
         }
 
-        // LẮNG NGHE TƯƠNG TÁC ĐẦU TIÊN CỦA NGƯỜI DÙNG ĐỂ MỞ KHÓA ÂM THANH
         ['click', 'keydown', 'touchstart'].forEach(evt => {
             window.addEventListener(evt, () => { getAudioContext(); }, { once: true });
         });
-
-        // ÂM THANH GÕ PHÍM BÀN PHÍM CƠ NỔI BẬT VÀ RÕ TIẾNG
-        function playKeyPressSound() {
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(500 + Math.random() * 250, now);
-                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
-
-                gain.gain.setValueAtTime(0.25, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.05);
-            } catch (e) {
-                console.log("Audio play error:", e);
-            }
-        }
 
         function playWrongSound() {
             try {
@@ -894,12 +868,9 @@
                         inputAnswer.value = showAnswersAll ? correctAnswer : (wordInputs[word.id] || '');
                     }
 
-                    // KÍCH HOẠT ÂM THANH GÕ VÀ LÀM RUNG KHUNG KHI BẤM PHÍM KÝ TỰ / BACKSPACE
+                    // HIỆU ỨNG RUNG BẰNG CSS (KHÔNG PHÁT ÂM THANH GÕ PHÍM ĐỂ TRÁNH LAG)
                     inputAnswer.addEventListener('keydown', (e) => {
                         if (!e.repeat && (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete')) {
-                            playKeyPressSound();
-                            
-                            // Reset Animation để bấm liên tục vẫn rung nảy khung
                             inputAnswer.classList.remove('is-shaking');
                             void inputAnswer.offsetWidth;
                             inputAnswer.classList.add('is-shaking');
