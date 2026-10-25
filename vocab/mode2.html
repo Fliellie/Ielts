@@ -37,10 +37,45 @@
             border-radius: 16px;
         }
 
+        /* THANH MÁU DỌC BÊN TRÁI CÙNG (CHẾ ĐỘ ĐUA) */
+        .hp-bar-wrapper {
+            position: absolute;
+            left: 10px;
+            top: 65px;
+            bottom: 15px;
+            width: 18px;
+            background-color: #1a0505;
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow: hidden;
+            z-index: 25;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+        .hp-bar-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, #22c55e, #eab308, #ef4444);
+            transition: height 0.05s linear;
+        }
+        .hp-bar-label {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 3px #000;
+            pointer-events: none;
+        }
+
         .sticky-header {
             background-color: #5c2f17;
             border-bottom: 3px solid #3d2216;
-            padding: 8px 15px;
+            padding: 8px 15px 8px 35px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -136,7 +171,7 @@
             margin: 10px auto 5px auto;
             width: 88%;
             max-width: 950px;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
@@ -144,7 +179,7 @@
         .scrollable-content {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 25px 25px 25px;
+            padding: 10px 25px 25px 35px;
         }
 
         .scrollable-content::-webkit-scrollbar { width: 10px; }
@@ -220,6 +255,10 @@
             left: 50%;
             transform: translate(-50%, -55%);
             font-weight: bold;
+        }
+
+        .word-checkbox.yellow-checkbox:checked::after {
+            color: #f59e0b !important;
         }
 
         .context-display-box {
@@ -298,7 +337,12 @@
             font-weight: bold;
         }
 
-        /* ANIMATION RUNG KHUNG KHI GÕ */
+        .word-input-box.yellow-mastered:disabled {
+            background-color: #422006 !important;
+            border-color: #f59e0b !important;
+            color: #fde047 !important;
+        }
+
         .is-shaking {
             animation: keyShake 0.14s cubic-bezier(.36,.07,.19,.97) !important;
             border-color: #f59e0b !important;
@@ -363,7 +407,7 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.75);
             display: none;
             justify-content: center;
             align-items: center;
@@ -386,6 +430,34 @@
             margin-top: 0;
             text-align: center;
         }
+
+        .mode-option-box {
+            background: #063d25;
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-option-box:hover {
+            background: #0a5c38;
+            border-color: #fde047;
+            transform: translateY(-2px);
+        }
+
+        /* KHUNG ĐẾM NGƯỢC 3 2 1 */
+        .countdown-display {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #fde047;
+            text-shadow: 0 0 25px #f59e0b, 0 0 10px #000;
+            animation: pulseCount 0.7s ease-in-out infinite alternate;
+        }
+        @keyframes pulseCount {
+            0% { transform: scale(0.9); }
+            100% { transform: scale(1.1); }
+        }
     </style>
 </head>
 <body>
@@ -394,12 +466,18 @@
     <audio id="bgmAudio" preload="auto"></audio>
 
     <div class="sketch-container">
+        <!-- THANH MÁU BÊN TRÁI CÙNG CHO CHẾ ĐỘ ĐUA -->
+        <div class="hp-bar-wrapper" id="hpBarWrapper">
+            <div class="hp-bar-fill" id="hpBarFill"></div>
+            <span class="hp-bar-label">HP</span>
+        </div>
+
         <div class="sticky-header">
             <button class="btn-back" id="backBtn" title="Quay lại trang chủ">←</button>
             <div class="header-buttons-left">
                 <button class="btn-quiz btn-audio-toggle" id="toggleBgmBtn">🎵 Bật Nhạc Nền</button>
                 <button class="btn-quiz" id="toggleModeBtn">trả lời tiếng anh</button>
-                <button class="btn-quiz" id="shuffleBtn">xáo trộn</button>
+                <button class="btn-quiz" id="shuffleBtn" title="Hoặc nhấn phím TAB">xáo trộn (TAB)</button>
                 <button class="btn-quiz" id="toggleAnswersBtn">hiện đáp án</button>
                 <button class="btn-quiz" id="showAllBtn">bỏ tích tất cả</button>
                 <button class="btn-quiz" id="promptAiBtn" style="background-color: #9333ea !important; border-color: #6b21a8;">Prompt AI</button>
@@ -430,6 +508,40 @@
         </div>
     </div>
 
+    <!-- MODAL INTRO LỰA CHỌN CHẾ ĐỘ -->
+    <div class="modal-overlay" id="modeSelectionModal">
+        <div class="modal-card" style="text-align: center; max-width: 650px;">
+            <h3 class="modal-title">🏁 BẠN ĐÃ SẴN SÀNG CHƯA?</h3>
+            <p style="font-size: 1.25rem; color: #a7f3d0; margin-bottom: 20px;">Hãy lựa chọn chế độ thử thách cho Lượt 2:</p>
+
+            <div class="mode-option-box" id="selectRaceModeBtn" style="border-color: #ef4444; background: #2b0808;">
+                <div style="font-size: 1.4rem; color: #fca5a5; font-weight: bold; margin-bottom: 6px;">
+                    🏎️ Chế Độ Đua (Thách Thức Thời Gian)
+                </div>
+                <div style="font-size: 1.05rem; color: #fecdd3; line-height: 1.4;">
+                    Sau khi đếm ngược 3-2-1, thanh máu bên trái sẽ tụt dần. Độ dài từ càng lớn thì thời gian càng dài. Phải gõ đúng từ và nhấn Enter trước khi cạn máu, nếu không sẽ bị <b>0 điểm</b>!
+                </div>
+            </div>
+
+            <div class="mode-option-box" id="selectNormalModeBtn">
+                <div style="font-size: 1.4rem; color: #93c5fd; font-weight: bold; margin-bottom: 6px;">
+                    🌱 Chế Độ Thông Thường
+                </div>
+                <div style="font-size: 1.05rem; color: #bfdbfe; line-height: 1.4;">
+                    Luyện tập thong thả, không giới hạn thời gian gõ cho từng từ.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ĐẾM NGƯỢC 3 2 1 -->
+    <div class="modal-overlay" id="countdownModal">
+        <div class="modal-card" style="text-align: center; width: 320px; background: rgba(13, 82, 52, 0.95);">
+            <div class="countdown-display" id="countdownText">3</div>
+        </div>
+    </div>
+
+    <!-- MODAL PROMPT AI -->
     <div class="modal-overlay" id="aiPromptModal">
         <div class="modal-card">
             <h3 class="modal-title">🤖 Tạo Prompt Cho AI (ChatGPT / Claude)</h3>
@@ -454,6 +566,8 @@
         let currentDisplayMode = 'en'; 
         let showAnswersAll = false;
         let masteredWordIds = new Set(); 
+        let yellowMasteredIds = new Set(); 
+        let consecutiveCorrect = {};       
         let wordInputs = {};       
         let sentenceInputs = {};   
         let feedbackHints = {}; 
@@ -462,6 +576,14 @@
         let wordScoreHistory = {};     
         let currentRoundScores = {};   
         let frozenAvgScores = {};      
+
+        // CHẾ ĐỘ ĐUA (RACE MODE)
+        let isRaceMode = false;
+        let isCountdownActive = false; // CỜ CHẶN TÍNH MÁU KHI ĐANG ĐẾM NGƯỢC
+        let raceTimerInterval = null;
+        let raceTimeMax = 0;
+        let raceTimeRemaining = 0;
+        let activeRaceWordId = null;
 
         const bgmPlaylist = [
             "Burgundy - Like You Mean It (freetouse.com).mp3",
@@ -497,7 +619,6 @@
             }
         }
 
-        // HỆ THỐNG AUDIO DÙNG CHO ÂM THANH BÁO ĐÚNG / SAI
         let audioCtx = null;
         function getAudioContext() {
             if (!audioCtx) {
@@ -559,6 +680,85 @@
                     osc.stop(startTime + 0.2);
                 });
             } catch (e) {}
+        }
+
+        // TỰ ĐỘNG ĐẶT CON TRỎ CHUỘT VÀO Ô CHƯA KHÓA ĐẦU TIÊN
+        function focusFirstInput() {
+            setTimeout(() => {
+                const firstInput = document.querySelector('.word-input-box:not([disabled])');
+                if (firstInput) {
+                    firstInput.focus();
+                    firstInput.select();
+                }
+            }, 80);
+        }
+
+        // ĐẾM NGƯỢC 3 2 1 KHI VÀO CHẾ ĐỘ ĐUA
+        function runRaceCountdown(onComplete) {
+            isCountdownActive = true;
+            stopRaceTimer();
+            const modal = document.getElementById('countdownModal');
+            const countdownEl = document.getElementById('countdownText');
+            modal.classList.add('active');
+
+            let count = 3;
+            countdownEl.textContent = count;
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownEl.textContent = count;
+                } else if (count === 0) {
+                    countdownEl.textContent = "BẮT ĐẦU!";
+                } else {
+                    clearInterval(timer);
+                    modal.classList.remove('active');
+                    isCountdownActive = false;
+                    if (onComplete) onComplete();
+                }
+            }, 700);
+        }
+
+        // QUẢN LÝ THANH MÁU TRONG CHẾ ĐỘ ĐUA
+        function stopRaceTimer() {
+            if (raceTimerInterval) {
+                clearInterval(raceTimerInterval);
+                raceTimerInterval = null;
+            }
+        }
+
+        function startRaceTimerForWord(word, correctAnswer) {
+            stopRaceTimer();
+            if (!isRaceMode || isCountdownActive || masteredWordIds.has(word.id)) return;
+
+            activeRaceWordId = word.id;
+            const wordLen = correctAnswer ? correctAnswer.length : 5;
+            raceTimeMax = Math.max(3200, 2200 + wordLen * 550);
+            raceTimeRemaining = raceTimeMax;
+
+            const hpFill = document.getElementById('hpBarFill');
+            if (hpFill) hpFill.style.height = '100%';
+
+            const tick = 50;
+            raceTimerInterval = setInterval(() => {
+                raceTimeRemaining -= tick;
+                if (raceTimeRemaining <= 0) {
+                    raceTimeRemaining = 0;
+                    if (hpFill) hpFill.style.height = '0%';
+                    stopRaceTimer();
+
+                    currentRoundScores[word.id] = 0;
+                    playWrongSound();
+                    feedbackHints[word.id] = {
+                        type: 'wrong',
+                        text: '⏱️ Hết thời gian! Nhận 0 điểm. Hãy gõ lại từ đúng để tiếp tục.'
+                    };
+                    render();
+                    focusFirstInput();
+                } else {
+                    if (hpFill) hpFill.style.height = (raceTimeRemaining / raceTimeMax * 100) + '%';
+                }
+            }, tick);
         }
 
         // TIMER & LOCAL STORAGE
@@ -681,6 +881,7 @@
                     originalWords.forEach(w => {
                         if (!w.timesLearned) w.timesLearned = 1;
                         wordScoreHistory[w.id] = [];
+                        consecutiveCorrect[w.id] = 0;
                     });
 
                     activeWords = JSON.parse(JSON.stringify(originalWords));
@@ -760,6 +961,11 @@
 
             document.getElementById('roundCounterBadge').textContent = `Vòng: ${completedRounds + 1}`;
 
+            const hpWrapper = document.getElementById('hpBarWrapper');
+            if (hpWrapper) {
+                hpWrapper.style.display = (isRaceMode && currentPhase === 'main') ? 'flex' : 'none';
+            }
+
             if (activeWords.length === 0) {
                 container.innerHTML = `<div style="text-align:center; font-size:1.6rem; color:#fde047; margin-top:30px;">
                     Không có từ vựng nào cần học hôm nay!
@@ -774,7 +980,8 @@
                 banner.textContent = 'Lượt 1: Ngữ cảnh (Luyện câu ví dụ)';
                 phaseBtn.textContent = 'Lượt 2 ->';
             } else {
-                banner.textContent = `Lượt 2 (Vòng ${completedRounds + 1}): Sau khi điền hết hãy ấn Xáo Trộn để ôn lại, nếu đã hoàn thành ca học, nhấn Nộp Bài`;
+                const modeTitle = isRaceMode ? '🏎️ CHẾ ĐỘ ĐUA' : '🌱 THÔNG THƯỜNG';
+                banner.textContent = `Lượt 2 [${modeTitle}] (Vòng ${completedRounds + 1}): Nhấn TAB để Xáo Trộn nhanh. Điền hết hãy ấn Xáo Trộn để ôn lại, nếu hoàn thành hãy nhấn Nộp Bài.`;
                 phaseBtn.textContent = 'Nộp bài';
             }
 
@@ -783,6 +990,7 @@
                 wordRow.className = 'word-row';
 
                 const isMastered = masteredWordIds.has(word.id);
+                const isYellowMastered = yellowMasteredIds.has(word.id);
                 const questionText = currentDisplayMode === 'en' ? word.displayVietnamese : word.displayEnglish;
                 const correctAnswer = currentDisplayMode === 'en' ? word.english : word.vietnamese;
 
@@ -799,6 +1007,9 @@
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'word-checkbox';
+                if (isYellowMastered) {
+                    checkbox.classList.add('yellow-checkbox');
+                }
                 checkbox.checked = isMastered;
 
                 checkbox.addEventListener('change', () => {
@@ -807,6 +1018,7 @@
                         frozenAvgScores[word.id] = getAverageScore(word.id);
                     } else {
                         masteredWordIds.delete(word.id);
+                        yellowMasteredIds.delete(word.id);
                         delete frozenAvgScores[word.id];
                     }
                     render();
@@ -859,6 +1071,9 @@
                     const inputAnswer = document.createElement('input');
                     inputAnswer.type = 'text';
                     inputAnswer.className = 'word-input-box';
+                    if (isYellowMastered) {
+                        inputAnswer.classList.add('yellow-mastered');
+                    }
                     inputAnswer.dataset.index = index;
 
                     if (isMastered) {
@@ -868,7 +1083,14 @@
                         inputAnswer.value = showAnswersAll ? correctAnswer : (wordInputs[word.id] || '');
                     }
 
-                    // HIỆU ỨNG RUNG BẰNG CSS (KHÔNG PHÁT ÂM THANH GÕ PHÍM ĐỂ TRÁNH LAG)
+                    inputAnswer.addEventListener('focus', () => {
+                        if (isRaceMode && !isCountdownActive && !masteredWordIds.has(word.id)) {
+                            if (activeRaceWordId !== word.id || raceTimeRemaining <= 0) {
+                                startRaceTimerForWord(word, correctAnswer);
+                            }
+                        }
+                    });
+
                     inputAnswer.addEventListener('keydown', (e) => {
                         if (!e.repeat && (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete')) {
                             inputAnswer.classList.remove('is-shaking');
@@ -889,6 +1111,7 @@
                             }
                         } else if (e.key === 'Enter') {
                             e.preventDefault();
+                            stopRaceTimer();
                             gradeSingleWord(word, inputAnswer.value, inputAnswer, index, activeWords);
                         }
                     });
@@ -917,7 +1140,7 @@
                     scoreBadge.className = 'score-badge';
                     scoreBadge.innerHTML = `
                         <div>Lượt này: ${currentScore}</div>
-                        <div style="color: #6ee7b7;">TB: ${avgScore}/10</div>
+                        <div style="color: ${isYellowMastered ? '#f59e0b' : '#6ee7b7'};">TB: ${avgScore}/10</div>
                     `;
 
                     wordRow.appendChild(inputColumn);
@@ -949,6 +1172,15 @@
                 playCorrectSound();
                 delete feedbackHints[word.id];
                 wordInputs[word.id] = correctAnswer;
+                
+                consecutiveCorrect[word.id] = (consecutiveCorrect[word.id] || 0) + 1;
+
+                if (completedRounds >= 3 && consecutiveCorrect[word.id] >= 3 && !masteredWordIds.has(word.id)) {
+                    masteredWordIds.add(word.id);
+                    yellowMasteredIds.add(word.id);
+                    frozenAvgScores[word.id] = getAverageScore(word.id);
+                }
+
                 inputElement.classList.add('flash-correct');
                 setTimeout(() => inputElement.classList.remove('flash-correct'), 600);
 
@@ -965,6 +1197,8 @@
                 }
             } else {
                 playWrongSound();
+                consecutiveCorrect[word.id] = 0;
+
                 const dist = getLevenshteinDistance(rawTyped, correctAnswer);
 
                 if (dist <= 2) {
@@ -1007,6 +1241,7 @@
         }
 
         function shuffleWords() {
+            stopRaceTimer();
             if (currentPhase === 'main' && !validateAllInputsFilled()) {
                 alert("⚠️ Chỉ khi mọi ô (chưa tích) đã được điền ít nhất 1 chữ thì mới được nhấn Xáo Trộn hoặc Nộp Bài!");
                 return;
@@ -1053,9 +1288,11 @@
             feedbackHints = {};
             showAnswersAll = false;
             render();
+            focusFirstInput(); // TỰ ĐỘNG FOCUS VÀO Ô ĐẦU TIÊN SAU KHI XÁO TRỘN
         }
 
         function submitAndFinish() {
+            stopRaceTimer();
             if (!validateAllInputsFilled()) {
                 alert("⚠️ Chỉ khi mọi ô (chưa tích) đã được điền ít nhất 1 chữ thì mới được nhấn Nộp Bài!");
                 return;
@@ -1100,16 +1337,45 @@
             };
         }
 
+        // PHÍM TẮT TAB ĐỂ XÁO TRỘN VÀ TỰ DỌN CON TRỎ CHIẾN TIẾP
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' && currentPhase === 'main') {
+                e.preventDefault(); 
+                shuffleWords();
+            }
+        });
+
         document.getElementById('toggleBgmBtn').addEventListener('click', toggleBGM);
 
         document.getElementById('phaseActionButton').addEventListener('click', () => {
             if (currentPhase === 'context') {
-                currentPhase = 'main';
-                startTimer();
-                render();
+                document.getElementById('modeSelectionModal').classList.add('active');
             } else {
                 submitAndFinish();
             }
+        });
+
+        // CHỌN CHẾ ĐỘ ĐUA: ĐẾM NGƯỢC 3 2 1 RỒI MỚI VÀO TRẬN & AUTO FOCUS
+        document.getElementById('selectRaceModeBtn').addEventListener('click', () => {
+            isRaceMode = true;
+            document.getElementById('modeSelectionModal').classList.remove('active');
+            currentPhase = 'main';
+            startTimer();
+            render();
+
+            runRaceCountdown(() => {
+                focusFirstInput();
+            });
+        });
+
+        // CHỌN CHẾ ĐỘ THÔNG THƯỜNG: VÀO MÀN HÌNH & AUTO FOCUS NGAY
+        document.getElementById('selectNormalModeBtn').addEventListener('click', () => {
+            isRaceMode = false;
+            document.getElementById('modeSelectionModal').classList.remove('active');
+            currentPhase = 'main';
+            startTimer();
+            render();
+            focusFirstInput();
         });
 
         document.getElementById('shuffleBtn').addEventListener('click', shuffleWords);
@@ -1123,17 +1389,22 @@
                 e.target.textContent = "trả lời tiếng anh";
             }
             render();
+            if (currentPhase === 'main') focusFirstInput();
         });
 
         document.getElementById('toggleAnswersBtn').addEventListener('click', () => {
             showAnswersAll = !showAnswersAll;
             render();
+            if (currentPhase === 'main') focusFirstInput();
         });
 
         document.getElementById('showAllBtn').addEventListener('click', () => {
             masteredWordIds.clear();
+            yellowMasteredIds.clear();
+            consecutiveCorrect = {};
             frozenAvgScores = {};
             render();
+            if (currentPhase === 'main') focusFirstInput();
         });
 
         document.getElementById('backBtn').addEventListener('click', () => {
