@@ -255,9 +255,15 @@
 
             if (importBtn) importBtn.addEventListener('click', () => window.location.href = 'import.html');
             if (libraryBtn) libraryBtn.addEventListener('click', () => window.location.href = 'library.html');
-            if (backBtn) backBtn.addEventListener('click', () => window.location.href = '../index.html');
+            
+            // SỬA ĐƯỜNG DẪN QUAY LẠI INDEX.HTML
+            if (backBtn) {
+                backBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = '../index.html';
+                });
+            }
 
-            // Lấy chuỗi ngày chuẩn theo định dạng YYYY-MM-DD
             function getDateStringWithOffset(offsetDays = 0) {
                 const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000 + offsetDays * 24 * 60 * 60 * 1000); 
                 return localDate.toISOString().split('T')[0]; 
@@ -285,7 +291,7 @@
                 };
             }
 
-            // HÀM TỰ ĐỘNG ĐẨY TỪ QUÁ HẠN VỀ HÔM NAY VÀ PHÂN BỔ DƯ THỪA
+            // ĐẢM BẢO MỖI NGÀY KHÔNG DƯỚI 10 TỪ (NẾU ÍT HƠN, TỰ ĐỘNG KÉO TỪ NGÀY TIẾP THEO GỘP LẠI)
             function balanceAndRenderDashboard() {
                 const todayStr = getDateStringWithOffset(0);
                 const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -305,17 +311,32 @@
                         return;
                     }
 
-                    // 1. Lấy tất cả từ quá hạn hoặc đến hạn hôm nay (nextReviewDate <= todayStr)
+                    // 1. Lấy từ quá hạn/đến hạn hôm nay
                     let dueWords = allWords.filter(word => {
                         if (!word.nextReviewDate) word.nextReviewDate = todayStr;
                         return word.nextReviewDate <= todayStr;
                     });
 
-                    // 2. Chia 2 nhóm: 20 từ cho hôm nay và nhóm bị quá tải dư ra
+                    // 2. Nếu ít hơn 10 từ, lấy thêm từ ngày tiếp theo gộp vào cho đủ 10 từ
+                    const MIN_WORDS_PER_DAY = 10;
+                    if (dueWords.length < MIN_WORDS_PER_DAY) {
+                        let futureWords = allWords.filter(word => word.nextReviewDate && word.nextReviewDate > todayStr);
+                        futureWords.sort((a, b) => a.nextReviewDate.localeCompare(b.nextReviewDate));
+
+                        const neededCount = MIN_WORDS_PER_DAY - dueWords.length;
+                        const wordsToPull = futureWords.slice(0, neededCount);
+
+                        wordsToPull.forEach(word => {
+                            word.nextReviewDate = todayStr;
+                            store.put(word);
+                            dueWords.push(word);
+                        });
+                    }
+
+                    // 3. Tối đa 20 từ mỗi ngày
                     const todayList = dueWords.slice(0, 20);
                     const excessList = dueWords.slice(20);
 
-                    // 3. Đẩy tất cả 20 từ hôm nay có ngày trong quá khứ (< todayStr) về chính xác hôm nay
                     todayList.forEach(word => {
                         if (word.nextReviewDate < todayStr) {
                             word.nextReviewDate = todayStr;
@@ -323,16 +344,14 @@
                         }
                     });
 
-                    // 4. Đẩy nhóm dư thừa sang các ngày tiếp theo (Nếu ngày tiếp theo đã có 20 từ thì đẩy tiếp ngày sau nữa)
+                    // 4. Đẩy nhóm dư thừa sang các ngày kế tiếp
                     if (excessList.length > 0) {
-                        // Tạo bảng đếm số từ đã phân bổ theo ngày
                         const dateCounts = {};
                         allWords.forEach(w => {
                             const d = w.nextReviewDate || todayStr;
                             dateCounts[d] = (dateCounts[d] || 0) + 1;
                         });
                         
-                        // Khóa danh sách hôm nay ở đúng 20 từ
                         dateCounts[todayStr] = todayList.length;
 
                         excessList.forEach(word => {
@@ -355,7 +374,6 @@
                         });
                     }
 
-                    // 5. Hiển thị danh sách 20 từ cần ôn hôm nay
                     if (todayList.length === 0) {
                         tableContainer.innerHTML = `<div class="empty-text">Thảnh thơi quá! Hôm nay không có từ nào cần ôn tập.</div>`;
                         return;

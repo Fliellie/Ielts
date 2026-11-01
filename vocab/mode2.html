@@ -37,7 +37,6 @@
             border-radius: 16px;
         }
 
-        /* THANH MÁU DỌC BÊN TRÁI CÙNG (CHẾ ĐỘ ĐUA) */
         .hp-bar-wrapper {
             position: absolute;
             left: 10px;
@@ -446,7 +445,6 @@
             transform: translateY(-2px);
         }
 
-        /* KHUNG ĐẾM NGƯỢC 3 2 1 */
         .countdown-display {
             font-size: 6rem;
             font-weight: bold;
@@ -462,11 +460,9 @@
 </head>
 <body>
 
-    <!-- THẺ AUDIO PHÁT NHẠC NỀN -->
     <audio id="bgmAudio" preload="auto"></audio>
 
     <div class="sketch-container">
-        <!-- THANH MÁU BÊN TRÁI CÙNG CHO CHẾ ĐỘ ĐUA -->
         <div class="hp-bar-wrapper" id="hpBarWrapper">
             <div class="hp-bar-fill" id="hpBarFill"></div>
             <span class="hp-bar-label">HP</span>
@@ -508,7 +504,6 @@
         </div>
     </div>
 
-    <!-- MODAL INTRO LỰA CHỌN CHẾ ĐỘ -->
     <div class="modal-overlay" id="modeSelectionModal">
         <div class="modal-card" style="text-align: center; max-width: 650px;">
             <h3 class="modal-title">🏁 BẠN ĐÃ SẴN SÀNG CHƯA?</h3>
@@ -534,14 +529,12 @@
         </div>
     </div>
 
-    <!-- MODAL ĐẾM NGƯỢC 3 2 1 -->
     <div class="modal-overlay" id="countdownModal">
         <div class="modal-card" style="text-align: center; width: 320px; background: rgba(13, 82, 52, 0.95);">
             <div class="countdown-display" id="countdownText">3</div>
         </div>
     </div>
 
-    <!-- MODAL PROMPT AI -->
     <div class="modal-overlay" id="aiPromptModal">
         <div class="modal-card">
             <h3 class="modal-title">🤖 Tạo Prompt Cho AI (ChatGPT / Claude)</h3>
@@ -577,9 +570,8 @@
         let currentRoundScores = {};   
         let frozenAvgScores = {};      
 
-        // CHẾ ĐỘ ĐUA (RACE MODE)
         let isRaceMode = false;
-        let isCountdownActive = false; // CỜ CHẶN TÍNH MÁU KHI ĐANG ĐẾM NGƯỢC
+        let isCountdownActive = false;
         let raceTimerInterval = null;
         let raceTimeMax = 0;
         let raceTimeRemaining = 0;
@@ -682,7 +674,6 @@
             } catch (e) {}
         }
 
-        // TỰ ĐỘNG ĐẶT CON TRỎ CHUỘT VÀO Ô CHƯA KHÓA ĐẦU TIÊN
         function focusFirstInput() {
             setTimeout(() => {
                 const firstInput = document.querySelector('.word-input-box:not([disabled])');
@@ -693,7 +684,6 @@
             }, 80);
         }
 
-        // ĐẾM NGƯỢC 3 2 1 KHI VÀO CHẾ ĐỘ ĐUA
         function runRaceCountdown(onComplete) {
             isCountdownActive = true;
             stopRaceTimer();
@@ -719,7 +709,6 @@
             }, 700);
         }
 
-        // QUẢN LÝ THANH MÁU TRONG CHẾ ĐỘ ĐUA
         function stopRaceTimer() {
             if (raceTimerInterval) {
                 clearInterval(raceTimerInterval);
@@ -748,6 +737,7 @@
                     stopRaceTimer();
 
                     currentRoundScores[word.id] = 0;
+                    consecutiveCorrect[word.id] = 0; // Hết giờ tính sai, reset chuỗi liên tiếp
                     playWrongSound();
                     feedbackHints[word.id] = {
                         type: 'wrong',
@@ -761,7 +751,6 @@
             }, tick);
         }
 
-        // TIMER & LOCAL STORAGE
         let timerSeconds = 0;
         let timerInterval = null;
 
@@ -861,7 +850,7 @@
         function loadAndBalanceWords() {
             return new Promise((resolve, reject) => {
                 const todayStr = getTodayString();
-                const tx = db.transaction(STORE_NAME, 'readonly');
+                const tx = db.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
                 const request = store.getAll();
 
@@ -872,6 +861,21 @@
                         if (!word.nextReviewDate) word.nextReviewDate = todayStr;
                         return word.nextReviewDate <= todayStr;
                     });
+
+                    const MIN_WORDS_PER_DAY = 10;
+                    if (dueWords.length < MIN_WORDS_PER_DAY) {
+                        let futureWords = allWords.filter(word => word.nextReviewDate && word.nextReviewDate > todayStr);
+                        futureWords.sort((a, b) => a.nextReviewDate.localeCompare(b.nextReviewDate));
+
+                        const neededCount = MIN_WORDS_PER_DAY - dueWords.length;
+                        const wordsToPull = futureWords.slice(0, neededCount);
+
+                        wordsToPull.forEach(word => {
+                            word.nextReviewDate = todayStr;
+                            store.put(word);
+                            dueWords.push(word);
+                        });
+                    }
 
                     if (dueWords.length > 20) {
                         dueWords = dueWords.slice(0, 20);
@@ -1161,21 +1165,22 @@
                 rawTyped = rawTyped.split('->')[0].trim();
             }
 
-            const isExact = (rawTyped.toLowerCase().trim() === correctAnswer.toLowerCase().trim());
+            // Tính điểm của lượt trả lời này (0 - 10)
+            const calculatedScore = calculateAccuracyScore(rawTyped, correctAnswer);
+            currentRoundScores[word.id] = calculatedScore;
 
-            if (currentRoundScores[word.id] === undefined) {
-                const calculatedScore = calculateAccuracyScore(rawTyped, correctAnswer);
-                currentRoundScores[word.id] = calculatedScore;
-            }
+            const isExact = (calculatedScore === 10);
 
             if (isExact) {
                 playCorrectSound();
                 delete feedbackHints[word.id];
                 wordInputs[word.id] = correctAnswer;
                 
+                // Trả lời đúng (10 điểm): Tăng bộ đếm chuỗi đúng liên tiếp
                 consecutiveCorrect[word.id] = (consecutiveCorrect[word.id] || 0) + 1;
 
-                if (completedRounds >= 3 && consecutiveCorrect[word.id] >= 3 && !masteredWordIds.has(word.id)) {
+                // Nếu đạt 10 điểm trong 3 lần kiểm tra liên tiếp -> Tự động tích chọn/loại bỏ từ này
+                if (consecutiveCorrect[word.id] >= 3 && !masteredWordIds.has(word.id)) {
                     masteredWordIds.add(word.id);
                     yellowMasteredIds.add(word.id);
                     frozenAvgScores[word.id] = getAverageScore(word.id);
@@ -1186,6 +1191,7 @@
 
                 render();
 
+                // Tự động nhảy sang ô tiếp theo chưa tích
                 let nextIdx = index + 1;
                 while (nextIdx < visibleWords.length) {
                     const nextWord = visibleWords[nextIdx];
@@ -1197,6 +1203,8 @@
                 }
             } else {
                 playWrongSound();
+                
+                // TRẢ LỜI SAI (Điểm < 10): Lập tức reset bộ đếm liên tiếp về 0
                 consecutiveCorrect[word.id] = 0;
 
                 const dist = getLevenshteinDistance(rawTyped, correctAnswer);
@@ -1267,16 +1275,6 @@
 
                 completedRounds++;
                 currentRoundScores = {}; 
-
-                if (completedRounds >= 2) {
-                    activeWords.forEach(word => {
-                        const avgScore = getAverageScore(word.id);
-                        if (avgScore >= 10 && !masteredWordIds.has(word.id)) {
-                            masteredWordIds.add(word.id);
-                            frozenAvgScores[word.id] = avgScore;
-                        }
-                    });
-                }
             }
 
             for (let i = activeWords.length - 1; i > 0; i--) {
@@ -1288,7 +1286,7 @@
             feedbackHints = {};
             showAnswersAll = false;
             render();
-            focusFirstInput(); // TỰ ĐỘNG FOCUS VÀO Ô ĐẦU TIÊN SAU KHI XÁO TRỘN
+            focusFirstInput();
         }
 
         function submitAndFinish() {
@@ -1335,9 +1333,14 @@
                 alert("🎉 Đã hoàn thành ca học! Kết quả đã được ghi nhận vào hệ thống.");
                 window.location.href = 'vocab.html';
             };
+
+            tx.onerror = (event) => {
+                console.error("Lỗi khi lưu dữ liệu IndexedDB:", event.target.error);
+                alert("Đã hoàn thành ca học! Đang quay lại trang chủ...");
+                window.location.href = 'vocab.html';
+            };
         }
 
-        // PHÍM TẮT TAB ĐỂ XÁO TRỘN VÀ TỰ DỌN CON TRỎ CHIẾN TIẾP
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Tab' && currentPhase === 'main') {
                 e.preventDefault(); 
@@ -1355,7 +1358,6 @@
             }
         });
 
-        // CHỌN CHẾ ĐỘ ĐUA: ĐẾM NGƯỢC 3 2 1 RỒI MỚI VÀO TRẬN & AUTO FOCUS
         document.getElementById('selectRaceModeBtn').addEventListener('click', () => {
             isRaceMode = true;
             document.getElementById('modeSelectionModal').classList.remove('active');
@@ -1368,7 +1370,6 @@
             });
         });
 
-        // CHỌN CHẾ ĐỘ THÔNG THƯỜNG: VÀO MÀN HÌNH & AUTO FOCUS NGAY
         document.getElementById('selectNormalModeBtn').addEventListener('click', () => {
             isRaceMode = false;
             document.getElementById('modeSelectionModal').classList.remove('active');
@@ -1407,9 +1408,13 @@
             if (currentPhase === 'main') focusFirstInput();
         });
 
-        document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = 'vocab.html';
-        });
+        const backBtn = document.getElementById('backBtn');
+        if (backBtn) {
+            backBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'vocab.html';
+            });
+        }
 
         const promptModal = document.getElementById('aiPromptModal');
         document.getElementById('promptAiBtn').addEventListener('click', () => {
