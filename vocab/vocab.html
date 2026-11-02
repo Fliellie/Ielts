@@ -256,7 +256,6 @@
             if (importBtn) importBtn.addEventListener('click', () => window.location.href = 'import.html');
             if (libraryBtn) libraryBtn.addEventListener('click', () => window.location.href = 'library.html');
             
-            // SỬA ĐƯỜNG DẪN QUAY LẠI INDEX.HTML
             if (backBtn) {
                 backBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -265,7 +264,7 @@
             }
 
             function getDateStringWithOffset(offsetDays = 0) {
-                const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000 + offsetDays * 24 * 60 * 60 * 1000); 
+                const localDate = new Date(Date.now() + (7 * 60 * 60 * 1000) + (offsetDays * 24 * 60 * 60 * 1000)); 
                 return localDate.toISOString().split('T')[0]; 
             }
 
@@ -291,9 +290,10 @@
                 };
             }
 
-            // ĐẢM BẢO MỖI NGÀY KHÔNG DƯỚI 10 TỪ (NẾU ÍT HƠN, TỰ ĐỘNG KÉO TỪ NGÀY TIẾP THEO GỘP LẠI)
             function balanceAndRenderDashboard() {
                 const todayStr = getDateStringWithOffset(0);
+                const lastCompletedDate = localStorage.getItem('vocab_completed_date');
+
                 const tx = db.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
                 const request = store.getAll();
@@ -311,13 +311,26 @@
                         return;
                     }
 
-                    // 1. Lấy từ quá hạn/đến hạn hôm nay
+                    // 1. KIỂM TRA ĐÃ HOÀN THÀNH CA HỌC HÔM NAY CHƯA
+                    if (lastCompletedDate === todayStr) {
+                        tableContainer.innerHTML = `
+                            <div class="empty-text" style="color:#22c55e; font-size:1.5rem; font-weight:bold; line-height:1.6;">
+                                🎉 Bạn đã hoàn thành ca học hôm nay!<br>
+                                <span style="font-size:1.2rem; color:#fde047; font-weight:normal;">
+                                    Kết quả đã được ghi nhận. Hãy nghỉ ngơi hoặc nạp thêm từ mới vào thư viện cho các ngày tới.
+                                </span>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // 2. NẾU CHƯA HỌC: Lấy các từ quá hạn/đến hạn hôm nay
                     let dueWords = allWords.filter(word => {
                         if (!word.nextReviewDate) word.nextReviewDate = todayStr;
                         return word.nextReviewDate <= todayStr;
                     });
 
-                    // 2. Nếu ít hơn 10 từ, lấy thêm từ ngày tiếp theo gộp vào cho đủ 10 từ
+                    // 3. ĐẢM BẢO CHƯA HỌC THÌ MỖI NGÀY ĐỦ MIN 10 TỪ (Kéo từ tương lai về)
                     const MIN_WORDS_PER_DAY = 10;
                     if (dueWords.length < MIN_WORDS_PER_DAY) {
                         let futureWords = allWords.filter(word => word.nextReviewDate && word.nextReviewDate > todayStr);
@@ -333,7 +346,17 @@
                         });
                     }
 
-                    // 3. Tối đa 20 từ mỗi ngày
+                    // 4. Nếu sau khi kéo mà vẫn không đủ 10 từ (do kho từ thiếu), thông báo người dùng nạp thêm
+                    if (dueWords.length < MIN_WORDS_PER_DAY && dueWords.length > 0) {
+                        alert(`⚠️ Hôm nay chỉ có ${dueWords.length}/${MIN_WORDS_PER_DAY} từ để học! Vui lòng nạp thêm từ mới vào thư viện.`);
+                    }
+
+                    if (dueWords.length === 0) {
+                        tableContainer.innerHTML = `<div class="empty-text">Thảnh thơi quá! Không có từ nào cần ôn tập hôm nay.</div>`;
+                        return;
+                    }
+
+                    // Tối đa 20 từ mỗi ngày
                     const todayList = dueWords.slice(0, 20);
                     const excessList = dueWords.slice(20);
 
@@ -344,7 +367,6 @@
                         }
                     });
 
-                    // 4. Đẩy nhóm dư thừa sang các ngày kế tiếp
                     if (excessList.length > 0) {
                         const dateCounts = {};
                         allWords.forEach(w => {
@@ -372,11 +394,6 @@
                                 }
                             }
                         });
-                    }
-
-                    if (todayList.length === 0) {
-                        tableContainer.innerHTML = `<div class="empty-text">Thảnh thơi quá! Hôm nay không có từ nào cần ôn tập.</div>`;
-                        return;
                     }
 
                     let tableHtml = `

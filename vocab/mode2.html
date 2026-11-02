@@ -737,7 +737,7 @@
                     stopRaceTimer();
 
                     currentRoundScores[word.id] = 0;
-                    consecutiveCorrect[word.id] = 0; // Hết giờ tính sai, reset chuỗi liên tiếp
+                    consecutiveCorrect[word.id] = 0;
                     playWrongSound();
                     feedbackHints[word.id] = {
                         type: 'wrong',
@@ -805,9 +805,13 @@
             });
         }
 
+        function getDateStringWithOffset(offsetDays = 0) {
+            const localDate = new Date(Date.now() + (7 * 60 * 60 * 1000) + (offsetDays * 24 * 60 * 60 * 1000));
+            return localDate.toISOString().split('T')[0];
+        }
+
         function getTodayString() {
-            const localDate = new Date(Date.now() + 7 * 60 * 60 * 1000); 
-            return localDate.toISOString().split('T')[0]; 
+            return getDateStringWithOffset(0);
         }
 
         function processDuplicates(wordsList) {
@@ -861,21 +865,6 @@
                         if (!word.nextReviewDate) word.nextReviewDate = todayStr;
                         return word.nextReviewDate <= todayStr;
                     });
-
-                    const MIN_WORDS_PER_DAY = 10;
-                    if (dueWords.length < MIN_WORDS_PER_DAY) {
-                        let futureWords = allWords.filter(word => word.nextReviewDate && word.nextReviewDate > todayStr);
-                        futureWords.sort((a, b) => a.nextReviewDate.localeCompare(b.nextReviewDate));
-
-                        const neededCount = MIN_WORDS_PER_DAY - dueWords.length;
-                        const wordsToPull = futureWords.slice(0, neededCount);
-
-                        wordsToPull.forEach(word => {
-                            word.nextReviewDate = todayStr;
-                            store.put(word);
-                            dueWords.push(word);
-                        });
-                    }
 
                     if (dueWords.length > 20) {
                         dueWords = dueWords.slice(0, 20);
@@ -1165,7 +1154,6 @@
                 rawTyped = rawTyped.split('->')[0].trim();
             }
 
-            // Tính điểm của lượt trả lời này (0 - 10)
             const calculatedScore = calculateAccuracyScore(rawTyped, correctAnswer);
             currentRoundScores[word.id] = calculatedScore;
 
@@ -1176,10 +1164,8 @@
                 delete feedbackHints[word.id];
                 wordInputs[word.id] = correctAnswer;
                 
-                // Trả lời đúng (10 điểm): Tăng bộ đếm chuỗi đúng liên tiếp
                 consecutiveCorrect[word.id] = (consecutiveCorrect[word.id] || 0) + 1;
 
-                // Nếu đạt 10 điểm trong 3 lần kiểm tra liên tiếp -> Tự động tích chọn/loại bỏ từ này
                 if (consecutiveCorrect[word.id] >= 3 && !masteredWordIds.has(word.id)) {
                     masteredWordIds.add(word.id);
                     yellowMasteredIds.add(word.id);
@@ -1191,7 +1177,6 @@
 
                 render();
 
-                // Tự động nhảy sang ô tiếp theo chưa tích
                 let nextIdx = index + 1;
                 while (nextIdx < visibleWords.length) {
                     const nextWord = visibleWords[nextIdx];
@@ -1203,8 +1188,6 @@
                 }
             } else {
                 playWrongSound();
-                
-                // TRẢ LỜI SAI (Điểm < 10): Lập tức reset bộ đếm liên tiếp về 0
                 consecutiveCorrect[word.id] = 0;
 
                 const dist = getLevenshteinDistance(rawTyped, correctAnswer);
@@ -1298,6 +1281,10 @@
 
             stopAndSaveTimer();
 
+            // ĐÁNH DẤU HÔM NAY ĐÃ HOÀN THÀNH CA HỌC
+            const todayStr = getTodayString();
+            localStorage.setItem('vocab_completed_date', todayStr);
+
             const tx = db.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
 
@@ -1319,9 +1306,7 @@
                 }
 
                 word.interval = newInterval;
-                const nextDate = new Date();
-                nextDate.setDate(nextDate.getDate() + newInterval);
-                word.nextReviewDate = nextDate.toISOString().split('T')[0];
+                word.nextReviewDate = getDateStringWithOffset(newInterval);
 
                 delete word.displayEnglish;
                 delete word.displayVietnamese;
