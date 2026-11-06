@@ -285,7 +285,7 @@ Ví dụ định dạng trả về:
 ]`;
             } else {
                 // Tùy chọn 2: Tự động xin 30 từ ngẫu nhiên theo trình độ
-                generatedPrompt = `Hãy đóng vai giáo viên tiếng Anh. Hãy tạo giúp tôi đúng 30 từ vựng ngẫu nhiên trình độ ${level} theo định dạng JSON thuần (chỉ trả về JSON Array, không kèm lời giải thích hay thẻ mã markdown).
+                generatedPrompt = `Hãy đóng vai giáo viên tiếng Anh. Hãy tạo giúp tôi đúng 30 câu tiếng anh dài không quá 10 từ(phải là 1 câu hoàn chỉnh) ngẫu nhiên theo trình độ, trải dài trong các câu phổ biến mà người dùng sẽ sử dụng hàng ngày để mô tả, hỏi, đáp, suy nghĩ... trình độ ${level} theo định dạng JSON thuần (chỉ trả về JSON Array, không kèm lời giải thích hay thẻ mã markdown).
 
 MÃ SEED NGẪU NHIÊN: ${randomSeed}
 (GIẢI THÍCH CHO AI: Mã seed ngẫu nhiên này được tạo ra để làm tín hiệu ngẫu nhiên hóa dữ liệu. Hãy dựa vào mã seed này để xáo trộn kho từ vựng và chọn ra 30 từ hoàn toàn mới, tuyệt đối tránh tạo ra các từ lặp lại so với các lần tạo prompt trước đó).
@@ -299,10 +299,10 @@ Mỗi phần tử gồm 4 trường:
 Ví dụ định dạng trả về:
 [
   {
-    "english": "enhance",
-    "vietnamese": "nâng cao",
-    "example1": "You can (enhance) your skills by practicing daily.",
-    "example2": "The new feature will (enhance) user experience."
+    "english": "i want to be your girlfriend",
+    "vietnamese": "tôi muốn làm bạn gái của bạn",
+    "example1": "là 1 ví dụ khác cho câu trên , giải thích từ vựng khó nếu có",
+    "example2": "cũng là 1 ví dụ khác cho câu trên,giải thích từ vựng khó nếu có"
   }
 ]`;
             }
